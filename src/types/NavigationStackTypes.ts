@@ -6,8 +6,8 @@ export type RootStackParamList = {
   Login: undefined; // No parameters expected to be passed to this route
   Session: undefined;
   Lobby: undefined;
-  // Add other screen parameters as needed, e.g.:
-  // Profile: { userId: string };
+  Voting: undefined;
+  Results: undefined;
 };
 
 // Define navigation prop types for each screen
@@ -24,6 +24,16 @@ export type SessionScreenNavigationProp = StackNavigationProp<
 export type LobbyScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'Lobby'
+>;
+
+export type VotingScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Voting'
+>;
+
+export type ResultsScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  'Results'
 >;
 
 // ...and so on for other screens
