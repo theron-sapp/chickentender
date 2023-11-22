@@ -14,6 +14,7 @@ interface Restaurant {
 
 interface Session {
   code: string;
+  sessionCreator: string;
   users: string[];
   expiresAt: string;
   restaurants: Restaurant[];

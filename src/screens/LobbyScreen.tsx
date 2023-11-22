@@ -1,43 +1,70 @@
 // LobbyScreen.tsx
 import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
+import {View, Text, Button, StyleSheet, FlatList} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
-import {getSession} from '../services/apiService'; // This needs to be implemented
+import {useUser} from '../contexts/UserContext'; // Make sure to import useUser
+import {
+  joinSessionRoom,
+  subscribeToUserJoined,
+  unsubscribeFromUserJoined,
+  startVoting, // Make sure this is imported
+  subscribeToVotingStarted,
+  unsubscribeFromVotingStarted,
+} from '../services/socketService';
+import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
 
-const LobbyScreen: React.FC = () => {
-  const {session, setSession} = useSession();
-  const [isLoading, setIsLoading] = useState(false);
+interface LobbyScreenProps {
+  navigation: LobbyScreenNavigationProp;
+}
+
+const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
+  const {userId} = useUser();
+  const {session} = useSession();
+  const [users, setUsers] = useState<string[]>(session?.users || []); // Initialize with current users in the session
+  const isSessionCreator = userId === session?.sessionCreator;
 
   useEffect(() => {
-    const fetchSessionData = async () => {
-      if (session?.code) {
-        setIsLoading(true);
-        try {
-          const updatedSession = await getSession(session.code);
-          setSession(updatedSession);
-        } catch (error) {
-          console.error(error);
-        }
-        setIsLoading(false);
-      }
+    if (session?.code) {
+      joinSessionRoom(session.code);
+
+      subscribeToUserJoined(user => {
+        const newUserId = user.userId;
+        setUsers(prevUsers => {
+          if (newUserId && !prevUsers.includes(newUserId)) {
+            return [...prevUsers, newUserId];
+          }
+          return prevUsers;
+        });
+      });
+
+      subscribeToVotingStarted(() => {
+        navigation.navigate('Voting'); // Replace 'Voting' with your actual Voting screen route name
+      });
+    }
+
+    return () => {
+      unsubscribeFromUserJoined();
+      unsubscribeFromVotingStarted();
     };
+  }, [navigation, session]);
 
-    const interval = setInterval(fetchSessionData, 5000);
-
-    return () => clearInterval(interval);
-  }, [session?.code, setSession]);
+  const handleStartVoting = () => {
+    if (session?.code) {
+      startVoting(session.code); // Use startVoting from socketService
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lobby</Text>
-      {isLoading ? (
-        <Text>Loading...</Text>
-      ) : (
-        <FlatList
-          data={session?.users}
-          keyExtractor={item => item}
-          renderItem={({item}) => <Text>{item}</Text>}
-        />
+      <FlatList
+        data={users}
+        keyExtractor={item => item}
+        renderItem={({item}) => <Text>{item}</Text>}
+        ListHeaderComponent={<Text>Session Code: {session?.code}</Text>}
+      />
+      {isSessionCreator && (
+        <Button title="Start Voting" onPress={handleStartVoting} />
       )}
     </View>
   );

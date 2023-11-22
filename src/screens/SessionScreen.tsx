@@ -33,13 +33,20 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
     }
   };
 
-  const handleCreateSession = async (param1?: any, param2?: any) => {
+  const handleCreateSession = async (
+    latitude?: number,
+    longitude?: number,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    city?: string,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    state?: string,
+  ) => {
     try {
       const radiusInMeters = 3000; // Set your default search radius
       const session = await createSession({
         userId,
-        latOrCity: param1 ?? 0, // Provide default coordinates if necessary
-        longOrState: param2 ?? 0,
+        param1: latitude ?? city, // Pass latitude or city
+        param2: longitude ?? state, // Pass longitude or state
         radiusInMeters,
       });
       setSession(session);
@@ -60,7 +67,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   };
 
   const handleLocationInput = async () => {
-    handleCreateSession(state, city);
+    handleCreateSession(undefined, undefined, city, state);
   };
 
   return (

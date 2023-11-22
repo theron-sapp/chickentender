@@ -35,5 +35,3 @@ export type ResultsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
   'Results'
 >;
-
-// ...and so on for other screens

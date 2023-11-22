@@ -3,8 +3,8 @@ const BASE_URL = 'http://localhost:3000/api';
 
 interface CreateSessionData {
   userId: string;
-  latOrCity: any;
-  longOrState: any;
+  param1: any;
+  param2: any;
   radiusInMeters: number;
 }
 
@@ -60,7 +60,6 @@ export const getSession = async (sessionCode: string) => {
     headers: {
       'Content-Type': 'application/json',
     },
-    // Include headers for authentication if needed
   });
   return handleResponse(response);
 };
