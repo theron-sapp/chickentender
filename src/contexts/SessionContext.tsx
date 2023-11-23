@@ -19,11 +19,14 @@ interface Session {
   expiresAt: string;
   restaurants: Restaurant[];
   votes: any[]; // Define the structure of votes as required
+  results?: any; // Add results to the session type
 }
 
 interface ISessionContext {
   session: Session | null;
   setSession: (session: Session) => void;
+  results: any; // The results state
+  setResults: (results: any) => void; // Function to set the results state
 }
 
 interface SessionProviderProps {
@@ -34,9 +37,10 @@ const SessionContext = createContext<ISessionContext | undefined>(undefined);
 
 export const SessionProvider: React.FC<SessionProviderProps> = ({children}) => {
   const [session, setSession] = useState<Session | null>(null);
+  const [results, setResults] = useState<any>(null);
 
   return (
-    <SessionContext.Provider value={{session, setSession}}>
+    <SessionContext.Provider value={{session, setSession, results, setResults}}>
       {children}
     </SessionContext.Provider>
   );

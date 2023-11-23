@@ -31,11 +31,35 @@ export const unsubscribeFromVotingStarted = () => {
   socket.off('voting started');
 };
 
-export const subscribeToVotingComplete = (callback: () => void) => {
+export const subscribeToVotingComplete = (callback: (results: any) => void) => {
   socket.on('voting complete', callback);
+
+  // Return a function to unsubscribe from the event
+  return () => {
+    socket.off('voting complete', callback);
+  };
 };
 
 export const unsubscribeFromVotingComplete = () => {
   socket.off('voting complete');
 };
+
+export const subscribeToResults = (callback: (results: any) => void) => {
+  socket.on('results', callback);
+};
+
+export const unsubscribeFromResults = () => {
+  socket.off('results');
+};
+
+export const emitDoneVoting = ({
+  sessionCode,
+  userId,
+}: {
+  sessionCode: string;
+  userId: string;
+}) => {
+  socket.emit('done voting', {sessionCode, userId});
+};
+
 export default socket;
