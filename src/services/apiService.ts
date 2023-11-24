@@ -8,10 +8,6 @@ interface CreateSessionData {
   radiusInMeters: number;
 }
 
-interface JoinSessionData {
-  userId: string;
-}
-
 interface VoteData {
   code: string;
   userId: string;
@@ -40,16 +36,13 @@ export const createSession = async (data: CreateSessionData) => {
   return handleResponse(response);
 };
 
-export const joinSession = async (
-  sessionCode: string,
-  data: JoinSessionData,
-) => {
+export const joinSession = async (sessionCode: string, userId: string) => {
   const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/join`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(userId),
   });
   return handleResponse(response);
 };

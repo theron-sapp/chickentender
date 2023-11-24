@@ -25,7 +25,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
   useEffect(() => {
     if (session?.code) {
-      joinSessionRoom(session.code);
+      joinSessionRoom(session.code, userId);
 
       subscribeToUserJoined(user => {
         const newUserId = user.userId;
@@ -46,7 +46,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
       unsubscribeFromUserJoined();
       unsubscribeFromVotingStarted();
     };
-  }, [navigation, session]);
+  }, [navigation, session, userId]);
 
   const handleStartVoting = () => {
     if (session?.code) {

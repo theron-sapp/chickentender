@@ -5,8 +5,8 @@ import io from 'socket.io-client';
 const SOCKET_URL = 'http://localhost:3000';
 const socket = io(SOCKET_URL);
 
-export const joinSessionRoom = (sessionCode: string) => {
-  socket.emit('join session', sessionCode);
+export const joinSessionRoom = (sessionCode: string, userId: string) => {
+  socket.emit('join session', sessionCode, userId);
 };
 
 export const subscribeToUserJoined = (

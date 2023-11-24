@@ -22,7 +22,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   const handleJoinSession = async () => {
     if (sessionCodeInput.trim().length > 0) {
       try {
-        const session = await joinSession(sessionCodeInput, {userId});
+        const session = await joinSession(sessionCodeInput, userId);
         setSession(session);
         navigation.navigate('Lobby'); // Assuming 'Lobby' is the route name for your Lobby Screen
       } catch (error) {
