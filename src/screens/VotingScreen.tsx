@@ -14,7 +14,7 @@ interface VotingScreenProps {
 
 const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const {session} = useSession();
-  const {userId} = useUser();
+  const {username} = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const onSwiped = useCallback(
@@ -29,7 +29,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       if (direction === 'right') {
         try {
           await voteOnRestaurant(session.code, {
-            userId,
+            username: username,
             yelpBusinessId: restaurant.id,
             vote: 'like',
             code: session.code,
@@ -42,13 +42,13 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
 
       // If the user has swiped on the last restaurant
       if (index === session.restaurants.length - 1) {
-        emitDoneVoting({sessionCode: session.code, userId: userId});
+        emitDoneVoting({sessionCode: session.code, userId: username});
         navigation.navigate('Results'); // Navigate to the results screen
       }
 
       setCurrentIndex(index + 1);
     },
-    [session, userId, navigation],
+    [session, username, navigation],
   );
 
   if (!session) {

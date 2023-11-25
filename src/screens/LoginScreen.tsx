@@ -11,12 +11,12 @@ interface LoginScreenProps {
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const [input, setInput] = useState('');
-  const {setUserId} = useUser();
+  const {setUsername} = useUser();
   //const navigation = useNavigation(); // Use the useNavigation hook
 
   const handleLogin = () => {
     if (input.trim().length > 0) {
-      setUserId(input.trim());
+      setUsername(input.trim());
       navigation.navigate('Session'); // Use the navigate function from navigation
     } else {
       Alert.alert('Invalid Input', 'Please enter a valid user ID.');

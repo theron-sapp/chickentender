@@ -1,8 +1,14 @@
+import Config from 'react-native-config';
+
 // apiService.ts
-const BASE_URL = 'http://localhost:3000/api';
+if (Config.ENVIRONTMENT === 'prod') {
+  var BASE_URL = Config.BASE_URL;
+} else {
+  BASE_URL = 'http://localhost:3000/api';
+}
 
 interface CreateSessionData {
-  userId: string;
+  username: string;
   param1: any;
   param2: any;
   radiusInMeters: number;
@@ -10,7 +16,7 @@ interface CreateSessionData {
 
 interface VoteData {
   code: string;
-  userId: string;
+  username: string;
   yelpBusinessId: string;
   vote: string;
 }

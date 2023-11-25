@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {View, TextInput, Button, StyleSheet, Alert} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import * as Location from 'expo-location'; // Ensure to install expo-location
-import {createSession, joinSession} from '../services/apiSocket';
+import {createSession, joinSession} from '../services/apiService';
 import {SessionScreenNavigationProp} from '../types/NavigationStackTypes';
 
 interface SessionScreenProps {

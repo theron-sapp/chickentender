@@ -18,14 +18,14 @@ interface LobbyScreenProps {
 }
 
 const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
-  const {userId} = useUser();
+  const {username} = useUser();
   const {session} = useSession();
   const [users, setUsers] = useState<string[]>(session?.users || []); // Initialize with current users in the session
-  const isSessionCreator = userId === session?.sessionCreator;
+  const isSessionCreator = username === session?.sessionCreator;
 
   useEffect(() => {
     if (session?.code) {
-      joinSessionRoom(session.code, userId);
+      joinSessionRoom(session.code, username);
 
       subscribeToUserJoined(user => {
         const newUserId = user.userId;
@@ -46,7 +46,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
       unsubscribeFromUserJoined();
       unsubscribeFromVotingStarted();
     };
-  }, [navigation, session, userId]);
+  }, [navigation, session, username]);
 
   const handleStartVoting = () => {
     if (session?.code) {
