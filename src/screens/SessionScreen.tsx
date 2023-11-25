@@ -1,10 +1,9 @@
 // SessionScreen.tsx
 import React, {useState} from 'react';
-import {View, Text, TextInput, Button, StyleSheet, Alert} from 'react-native';
-import {useUser} from '../contexts/UserContext';
+import {View, TextInput, Button, StyleSheet, Alert} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import * as Location from 'expo-location'; // Ensure to install expo-location
-import {createSession, joinSession} from '../services/apiService';
+import {createSession, joinSession} from '../services/apiSocket';
 import {SessionScreenNavigationProp} from '../types/NavigationStackTypes';
 
 interface SessionScreenProps {
@@ -12,7 +11,7 @@ interface SessionScreenProps {
 }
 
 const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
-  const {userId} = useUser();
+  const [username, setUsername] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const {setSession} = useSession();
@@ -20,33 +19,33 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   const [creatingSession, setCreatingSession] = useState(false);
 
   const handleJoinSession = async () => {
-    if (sessionCodeInput.trim().length > 0) {
+    if (sessionCodeInput.trim().length > 0 && username.trim().length > 0) {
       try {
-        const session = await joinSession(sessionCodeInput, userId);
+        const session = await joinSession(sessionCodeInput, username);
         setSession(session);
-        navigation.navigate('Lobby'); // Assuming 'Lobby' is the route name for your Lobby Screen
+        navigation.navigate('Lobby');
       } catch (error) {
         Alert.alert('Error', 'Failed to join session. Please try again.');
       }
     } else {
-      Alert.alert('Invalid Input', 'Please enter a session code.');
+      Alert.alert(
+        'Invalid Input',
+        'Please enter a session code and a username.',
+      );
     }
   };
 
-  const handleCreateSession = async (
-    latitude?: number,
-    longitude?: number,
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    city?: string,
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    state?: string,
-  ) => {
+  const handleCreateSession = async (latitude?: number, longitude?: number) => {
+    if (username.trim().length === 0) {
+      Alert.alert('Invalid Input', 'Please enter a username.');
+      return;
+    }
     try {
       const radiusInMeters = 3000; // Set your default search radius
       const session = await createSession({
-        userId,
-        param1: latitude ?? city, // Pass latitude or city
-        param2: longitude ?? state, // Pass longitude or state
+        username,
+        param1: latitude ?? city,
+        param2: longitude ?? state,
         radiusInMeters,
       });
       setSession(session);
@@ -66,15 +65,15 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
     handleCreateSession(location.coords.latitude, location.coords.longitude);
   };
 
-  const handleLocationInput = async () => {
-    handleCreateSession(undefined, undefined, city, state);
-  };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>
-        Hello {userId}! Please choose an option below!
-      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Enter a username"
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
       {!creatingSession ? (
         <View>
           <TextInput
@@ -110,7 +109,10 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
             onChangeText={setState}
             autoCapitalize="characters"
           />
-          <Button title="Enter Location" onPress={handleLocationInput} />
+          <Button
+            title="Enter Location Manually"
+            onPress={() => handleCreateSession()}
+          />
         </View>
       )}
     </View>
@@ -123,10 +125,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-  },
-  welcomeText: {
-    fontSize: 20,
-    marginBottom: 20,
   },
   input: {
     width: '100%',
