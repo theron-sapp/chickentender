@@ -1,13 +1,12 @@
 // LobbyScreen.tsx
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet, FlatList} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
-import {useUser} from '../contexts/UserContext'; // Make sure to import useUser
 import {
   joinSessionRoom,
   subscribeToUserJoined,
   unsubscribeFromUserJoined,
-  startVoting, // Make sure this is imported
+  startVoting,
   subscribeToVotingStarted,
   unsubscribeFromVotingStarted,
 } from '../services/socketService';
@@ -18,39 +17,41 @@ interface LobbyScreenProps {
 }
 
 const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
-  const {username} = useUser();
-  const {session} = useSession();
-  const [users, setUsers] = useState<string[]>(session?.users || []); // Initialize with current users in the session
-  const isSessionCreator = username === session?.sessionCreator;
+  const {session, setSession} = useSession();
+  const [users, setUsers] = useState<{username: string}[]>([]);
 
   useEffect(() => {
-    if (session?.code) {
-      joinSessionRoom(session.code, username);
+    if (session?.code && session?.sessionCreator) {
+      // Pass both session code and username of the session creator to the joinSessionRoom function
+      joinSessionRoom(session.code, session.sessionCreator);
 
-      subscribeToUserJoined(user => {
-        const newUserId = user.userId;
+      const unsubscribeUserJoined = subscribeToUserJoined(newUser => {
         setUsers(prevUsers => {
-          if (newUserId && !prevUsers.includes(newUserId)) {
-            return [...prevUsers, newUserId];
+          // Check if the username is already in the list to avoid duplicates
+          if (prevUsers.every(user => user.username !== newUser.username)) {
+            return [...prevUsers, newUser];
           }
           return prevUsers;
         });
       });
 
-      subscribeToVotingStarted(() => {
-        navigation.navigate('Voting'); // Replace 'Voting' with your actual Voting screen route name
+      const unsubscribeVotingStarted = subscribeToVotingStarted(() => {
+        navigation.navigate('Voting');
       });
-    }
 
-    return () => {
-      unsubscribeFromUserJoined();
-      unsubscribeFromVotingStarted();
-    };
-  }, [navigation, session, username]);
+      // Set the initial list of users when the component mounts
+      setUsers(session.users);
+
+      return () => {
+        unsubscribeUserJoined();
+        unsubscribeVotingStarted();
+      };
+    }
+  }, [navigation, session]);
 
   const handleStartVoting = () => {
-    if (session?.code) {
-      startVoting(session.code); // Use startVoting from socketService
+    if (session?.sessionCreator === session?.code) {
+      startVoting(session.code);
     }
   };
 
@@ -59,11 +60,11 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
       <Text style={styles.title}>Lobby</Text>
       <FlatList
         data={users}
-        keyExtractor={item => item}
-        renderItem={({item}) => <Text>{item}</Text>}
+        keyExtractor={item => item.username}
+        renderItem={({item}) => <Text>{item.username}</Text>}
         ListHeaderComponent={<Text>Session Code: {session?.code}</Text>}
       />
-      {isSessionCreator && (
+      {session?.sessionCreator === session?.code && (
         <Button title="Start Voting" onPress={handleStartVoting} />
       )}
     </View>
@@ -75,10 +76,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
+    marginBottom: 20,
   },
 });
 

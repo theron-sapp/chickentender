@@ -42,13 +42,13 @@ export const createSession = async (data: CreateSessionData) => {
   return handleResponse(response);
 };
 
-export const joinSession = async (sessionCode: string, userId: string) => {
+export const joinSession = async (sessionCode: string, username: string) => {
   const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/join`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(userId),
+    body: JSON.stringify({username}),
   });
   return handleResponse(response);
 };

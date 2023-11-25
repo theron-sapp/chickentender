@@ -5,14 +5,19 @@ import io from 'socket.io-client';
 const SOCKET_URL = 'http://localhost:3000';
 const socket = io(SOCKET_URL);
 
-export const joinSessionRoom = (sessionCode: string, userId: string) => {
-  socket.emit('join session', sessionCode, userId);
+export const joinSessionRoom = (sessionCode: string, username: string) => {
+  socket.emit('join session', sessionCode, username);
 };
 
 export const subscribeToUserJoined = (
-  callback: (user: {userId: string}) => void,
+  callback: (user: {username: string}) => void,
 ) => {
   socket.on('user joined', callback);
+
+  // Return a function to unsubscribe from the event
+  return () => {
+    socket.off('user joined', callback);
+  };
 };
 
 export const unsubscribeFromUserJoined = () => {
@@ -25,6 +30,11 @@ export const startVoting = (sessionCode: string) => {
 
 export const subscribeToVotingStarted = (callback: () => void) => {
   socket.on('voting started', callback);
+
+  // Return a function to unsubscribe from the event
+  return () => {
+    socket.off('voting started', callback);
+  };
 };
 
 export const unsubscribeFromVotingStarted = () => {

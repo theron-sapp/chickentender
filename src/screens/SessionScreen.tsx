@@ -17,6 +17,10 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   const {setSession} = useSession();
   const [sessionCodeInput, setSessionCodeInput] = useState('');
   const [creatingSession, setCreatingSession] = useState(false);
+  const [joiningSession, setJoiningSession] = useState(false);
+  const [view, setView] = useState<
+    'default' | 'join' | 'create' | 'manual' | 'location'
+  >('default');
 
   const handleJoinSession = async () => {
     if (sessionCodeInput.trim().length > 0 && username.trim().length > 0) {
@@ -52,6 +56,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       navigation.navigate('Lobby');
     } catch (error) {
       Alert.alert('Error', 'Failed to create session. Please try again.');
+      setView('create'); // Reset the view back to 'create' after an error
     }
   };
 
@@ -67,15 +72,22 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter a username"
-        value={username}
-        onChangeText={setUsername}
-        autoCapitalize="none"
-      />
-      {!creatingSession ? (
-        <View>
+      {view === 'default' && (
+        <>
+          <Button title="Join a Session" onPress={() => setView('join')} />
+          <Button title="Create a Session" onPress={() => setView('create')} />
+        </>
+      )}
+
+      {view === 'join' && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+          />
           <TextInput
             style={styles.input}
             placeholder="Enter session code"
@@ -84,16 +96,38 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
             autoCapitalize="none"
           />
           <Button title="Join Session" onPress={handleJoinSession} />
-          <Button
-            title="Create Session"
-            onPress={() => setCreatingSession(true)}
+          <Button title="Go Back" onPress={() => setView('default')} />
+        </>
+      )}
+
+      {view === 'create' && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
           />
-        </View>
-      ) : (
-        <View>
           <Button
             title="Use Current Location"
             onPress={requestAndUseLocation}
+          />
+          <Button
+            title="Enter Location Manually"
+            onPress={() => setView('manual')}
+          />
+          <Button title="Go Back" onPress={() => setView('default')} />
+        </>
+      )}
+      {view === 'manual' && (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
           />
           <TextInput
             style={styles.input}
@@ -110,10 +144,11 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
             autoCapitalize="characters"
           />
           <Button
-            title="Enter Location Manually"
+            title="Create Session"
             onPress={() => handleCreateSession()}
           />
-        </View>
+          <Button title="Go Back" onPress={() => setView('create')} />
+        </>
       )}
     </View>
   );

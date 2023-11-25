@@ -15,7 +15,7 @@ interface Restaurant {
 interface Session {
   code: string;
   sessionCreator: string;
-  users: string[];
+  users: {username: string}[];
   expiresAt: string;
   restaurants: Restaurant[];
   votes: any[]; // Define the structure of votes as required

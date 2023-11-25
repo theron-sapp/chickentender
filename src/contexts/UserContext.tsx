@@ -2,7 +2,7 @@ import React, {createContext, useState, useContext} from 'react';
 
 interface IUserContext {
   username: string;
-  setUsername: (username: string) => void;
+  setUsername: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const UserContext = createContext<IUserContext | undefined>(undefined);
