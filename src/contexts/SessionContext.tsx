@@ -25,8 +25,7 @@ interface Session {
 interface ISessionContext {
   session: Session | null;
   setSession: (session: Session) => void;
-  results: any; // The results state
-  setResults: (results: any) => void; // Function to set the results state
+  setResults: (results: any) => void;
 }
 
 interface SessionProviderProps {
@@ -37,10 +36,18 @@ const SessionContext = createContext<ISessionContext | undefined>(undefined);
 
 export const SessionProvider: React.FC<SessionProviderProps> = ({children}) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [results, setResults] = useState<any>(null);
+  // const [results, setResults] = useState<any>(null);
+  const setResults = (newResults: any) => {
+    setSession(prevSession => {
+      if (prevSession) {
+        return {...prevSession, results: newResults};
+      }
+      return prevSession;
+    });
+  };
 
   return (
-    <SessionContext.Provider value={{session, setSession, results, setResults}}>
+    <SessionContext.Provider value={{session, setSession, setResults}}>
       {children}
     </SessionContext.Provider>
   );

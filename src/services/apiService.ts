@@ -1,10 +1,16 @@
-import Config from 'react-native-config';
+// chickentender/src/services/apiService.ts
 
+import Config from 'react-native-config';
+import {Platform} from 'react-native';
 // apiService.ts
 if (Config.ENVIRONTMENT === 'prod') {
   var BASE_URL = Config.BASE_URL;
 } else {
-  BASE_URL = 'http://localhost:3000/api';
+  if (Platform.OS === 'ios') {
+    BASE_URL = 'http://localhost:3000/api';
+  } else {
+    BASE_URL = 'http://10.0.2.2:3000/api';
+  }
 }
 
 interface CreateSessionData {
@@ -71,5 +77,34 @@ export const voteOnRestaurant = async (sessionCode: string, data: VoteData) => {
     },
     body: JSON.stringify(data),
   });
+  return handleResponse(response);
+};
+
+export const getWinningRestaurant = async (sessionCode: string) => {
+  console.log(`getting session results for ${sessionCode}`);
+  const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/results`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return handleResponse(response);
+};
+
+export const updateUserVotingStatus = async (
+  sessionCode: string,
+  username: string,
+) => {
+  const data = {code: sessionCode, username: username};
+  const response = await fetch(
+    `${BASE_URL}/session/${sessionCode}/user/${username}/donevoting`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    },
+  );
   return handleResponse(response);
 };

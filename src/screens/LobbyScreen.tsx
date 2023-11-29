@@ -2,13 +2,12 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, Button, StyleSheet, FlatList} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
+import {useUser} from '../contexts/UserContext';
 import {
   joinSessionRoom,
   subscribeToUserJoined,
-  unsubscribeFromUserJoined,
   startVoting,
   subscribeToVotingStarted,
-  unsubscribeFromVotingStarted,
 } from '../services/socketService';
 import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
 
@@ -17,11 +16,12 @@ interface LobbyScreenProps {
 }
 
 const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
-  const {session, setSession} = useSession();
+  const {session} = useSession();
   const [users, setUsers] = useState<{username: string}[]>([]);
+  const {username} = useUser();
 
   useEffect(() => {
-    if (session?.code && session?.sessionCreator) {
+    if (session?.users && session?.sessionCreator) {
       // Pass both session code and username of the session creator to the joinSessionRoom function
       joinSessionRoom(session.code, session.sessionCreator);
 
@@ -50,7 +50,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   }, [navigation, session]);
 
   const handleStartVoting = () => {
-    if (session?.sessionCreator === session?.code) {
+    if (session?.sessionCreator === username) {
       startVoting(session.code);
     }
   };
@@ -64,7 +64,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
         renderItem={({item}) => <Text>{item.username}</Text>}
         ListHeaderComponent={<Text>Session Code: {session?.code}</Text>}
       />
-      {session?.sessionCreator === session?.code && (
+      {session?.sessionCreator === username && (
         <Button title="Start Voting" onPress={handleStartVoting} />
       )}
     </View>

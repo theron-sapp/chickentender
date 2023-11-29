@@ -1,75 +1,50 @@
-// services/socketService.ts
+// chickentender/src/services/socketService.ts
+import {useEffect, useState, useCallback} from 'react';
 import io from 'socket.io-client';
 
-// Initialize the socket connection (update the URL to match your server's location)
-const SOCKET_URL = 'http://localhost:3000';
+const SOCKET_URL = 'http://localhost:3000'; // Update as needed
 const socket = io(SOCKET_URL);
 
-export const joinSessionRoom = (sessionCode: string, username: string) => {
+const useSocket = (eventName, handler) => {
+  useEffect(() => {
+    socket.on(eventName, handler);
+
+    return () => {
+      socket.off(eventName, handler);
+    };
+  }, [eventName, handler]);
+};
+
+export const joinSessionRoom = (sessionCode, username) => {
   socket.emit('join session', sessionCode, username);
 };
 
-export const subscribeToUserJoined = (
-  callback: (user: {username: string}) => void,
-) => {
-  socket.on('user joined', callback);
-
-  // Return a function to unsubscribe from the event
-  return () => {
-    socket.off('user joined', callback);
-  };
+export const emitDoneVoting = (sessionCode, username) => {
+  socket.emit('done voting', sessionCode, username);
 };
 
-export const unsubscribeFromUserJoined = () => {
-  socket.off('user joined'); // This should match the subscription event key
-};
-
-export const startVoting = (sessionCode: string) => {
+export const startVoting = sessionCode => {
+  console.log(`Emitting start voting for session code: ${sessionCode}`);
   socket.emit('start voting', sessionCode);
 };
 
+export const subscribeToUserJoined = callback => {
+  socket.on('user joined', callback);
+  return () => socket.off('user joined', callback);
+};
+
 export const subscribeToVotingStarted = (callback: () => void) => {
-  socket.on('voting started', callback);
-
-  // Return a function to unsubscribe from the event
-  return () => {
-    socket.off('voting started', callback);
-  };
+  socket.on('voting started', () => {
+    console.log('Voting started event received');
+    callback();
+  });
+  return () => socket.off('voting started', callback);
 };
 
-export const unsubscribeFromVotingStarted = () => {
-  socket.off('voting started');
-};
-
-export const subscribeToVotingComplete = (callback: (results: any) => void) => {
+// socketService.ts
+export const subscribeToVotingComplete = callback => {
   socket.on('voting complete', callback);
-
-  // Return a function to unsubscribe from the event
-  return () => {
-    socket.off('voting complete', callback);
-  };
+  return () => socket.off('voting complete', callback);
 };
 
-export const unsubscribeFromVotingComplete = () => {
-  socket.off('voting complete');
-};
-
-export const subscribeToResults = (callback: (results: any) => void) => {
-  socket.on('results', callback);
-};
-
-export const unsubscribeFromResults = () => {
-  socket.off('results');
-};
-
-export const emitDoneVoting = ({
-  sessionCode,
-  userId,
-}: {
-  sessionCode: string;
-  userId: string;
-}) => {
-  socket.emit('done voting', {sessionCode, userId});
-};
-
-export default socket;
+export default useSocket;
