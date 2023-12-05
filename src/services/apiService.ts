@@ -1,8 +1,7 @@
 // chickentender/src/services/apiService.ts
 
 import Config from 'react-native-config';
-import {Platform} from 'react-native';
-// apiService.ts
+import {Platform} from 'react-native'; // apiService.ts
 if (Config.ENVIRONTMENT === 'prod') {
   var BASE_URL = Config.BASE_URL;
 } else {
@@ -17,7 +16,8 @@ interface CreateSessionData {
   username: string;
   param1: any;
   param2: any;
-  radiusInMeters: number;
+  radiusInMeters: Number;
+  maxPriceLevel: Number;
 }
 
 interface VoteData {
@@ -38,14 +38,20 @@ async function handleResponse(response: Response) {
 }
 
 export const createSession = async (data: CreateSessionData) => {
-  const response = await fetch(`${BASE_URL}/sessions/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  return handleResponse(response);
+  console.log(`Create Session params: ${JSON.stringify(data)}`);
+  try {
+    const response = await fetch(`${BASE_URL}/sessions/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Error creating session:', error);
+    throw error;
+  }
 };
 
 export const joinSession = async (sessionCode: string, username: string) => {

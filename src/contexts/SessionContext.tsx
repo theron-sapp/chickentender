@@ -18,13 +18,13 @@ interface Session {
   users: {username: string}[];
   expiresAt: string;
   restaurants: Restaurant[];
-  votes: any[]; // Define the structure of votes as required
-  results?: any; // Add results to the session type
+  votes: any[];
+  results?: any;
 }
 
 interface ISessionContext {
   session: Session | null;
-  setSession: (session: Session) => void;
+  setSession: (session: Session | null) => void;
   setResults: (results: any) => void;
 }
 
@@ -32,11 +32,12 @@ interface SessionProviderProps {
   children: React.ReactNode;
 }
 
-const SessionContext = createContext<ISessionContext | undefined>(undefined);
+export const SessionContext = createContext<ISessionContext | undefined>(
+  undefined,
+);
 
 export const SessionProvider: React.FC<SessionProviderProps> = ({children}) => {
   const [session, setSession] = useState<Session | null>(null);
-  // const [results, setResults] = useState<any>(null);
   const setResults = (newResults: any) => {
     setSession(prevSession => {
       if (prevSession) {

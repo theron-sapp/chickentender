@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unstable-nested-components */
 // App.tsx or Navigation.tsx
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -8,7 +9,7 @@ import VotingScreen from './src/screens/VotingScreen';
 import ResultsScreen from './src/screens/ResultsScreen';
 import {UserProvider} from './src/contexts/UserContext';
 import {SessionProvider} from './src/contexts/SessionContext';
-
+import HeaderComponent from './src/reusables/HeaderComponent'; // Import your custom header
 import React from 'react';
 import {UsersArrayProvider} from './src/contexts/UsersArrayContext';
 
@@ -20,12 +21,39 @@ const App: React.FC = () => {
       <UsersArrayProvider>
         <SessionProvider>
           <NavigationContainer>
-            <Stack.Navigator>
+            <Stack.Navigator
+              screenOptions={{
+                headerShown: true,
+              }}>
               {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
-              <Stack.Screen name="Session" component={SessionScreen} />
-              <Stack.Screen name="Lobby" component={LobbyScreen} />
-              <Stack.Screen name="Voting" component={VotingScreen} />
-              <Stack.Screen name="Results" component={ResultsScreen} />
+              <Stack.Screen
+                name="Session"
+                component={SessionScreen}
+                options={{
+                  header: () => <HeaderComponent title="Chicken Tender" />,
+                }}
+              />
+              <Stack.Screen
+                name="Lobby"
+                component={LobbyScreen}
+                options={{
+                  header: () => <HeaderComponent title="Chicken Tender" />,
+                }}
+              />
+              <Stack.Screen
+                name="Voting"
+                component={VotingScreen}
+                options={{
+                  header: () => <HeaderComponent title="Vote!" />,
+                }}
+              />
+              <Stack.Screen
+                name="Results"
+                component={ResultsScreen}
+                options={{
+                  header: () => <HeaderComponent title="Chicken Tender" />,
+                }}
+              />
             </Stack.Navigator>
           </NavigationContainer>
         </SessionProvider>

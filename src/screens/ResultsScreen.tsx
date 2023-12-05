@@ -1,27 +1,29 @@
 // chickentender/src/screens/ResultsScreen.tsx
-// const ConfettiCannon: any = require('react-native-confetti-cannon').default;
 import React, {useRef, useCallback} from 'react';
 import {View, Text, StyleSheet, Image, Button} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-import useSocket from '../services/socketService';
+import useSocket, {disconnectSocket} from '../services/socketService';
 import {ResultsScreenNavigationProp} from '../types/NavigationStackTypes';
 import {getWinningRestaurant} from '../services/apiService';
+import Background from '../reusables/Background';
+
+const ConfettiCannon: any = require('react-native-confetti-cannon').default;
 
 interface ResultsScreenProps {
   navigation: ResultsScreenNavigationProp;
 }
 
 const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
-  const {session, setResults} = useSession();
+  const {session, setSession, setResults} = useSession();
   const {setUsername} = useUser();
-  // const confettiRef = useRef<any>(null);
+  const confettiRef = useRef<any>(null);
 
   const fetchResults = useCallback(async () => {
     if (session?.code) {
       const response = await getWinningRestaurant(session.code);
       setResults(response);
-      // confettiRef.current?.start();
+      confettiRef.current?.start();
     }
   }, [session, setResults]);
 
@@ -29,33 +31,43 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
 
   const handleBackToSession = () => {
     setUsername(''); // Reset user context
+    setSession(null);
+    setResults(null);
+    disconnectSocket();
     navigation.navigate('Session'); // Navigate back to the SessionScreen
   };
 
-  if (!session || !session.results) {
-    return (
-      <View style={styles.container}>
-        <Text>Waiting for results...</Text>
-        <Button title="Back to Session" onPress={handleBackToSession} />
-      </View>
-    );
-  }
-
-  const {results} = session;
-  //console.log(session);
+  const hasResults = session?.results && session.results.winner;
 
   return (
-    <View style={styles.container}>
-      {/* <ConfettiCannon count={200} ref={confettiRef} /> */}
-      <Text style={styles.title}>Results</Text>
-      <View style={styles.restaurantCard}>
-        <Image source={{uri: results.winner.image}} style={styles.image} />
-        <Text style={styles.restaurantName}>{results.winner.name}</Text>
-        <Text>{results.winner.address}</Text>
-        {/* Other details as needed */}
+    <Background>
+      <View style={styles.container}>
+        {hasResults && (
+          <ConfettiCannon
+            count={400}
+            origin={{x: -10, y: 0}}
+            ref={confettiRef}
+          />
+        )}
+        <Text style={styles.title}>Results</Text>
+        {hasResults ? (
+          <View style={styles.restaurantCard}>
+            <Image
+              source={{uri: session.results.winner.image}}
+              style={styles.image}
+            />
+            <Text style={styles.restaurantName}>
+              {session.results.winner.name}
+            </Text>
+            <Text>{session.results.winner.address}</Text>
+            {/* Other details as needed */}
+          </View>
+        ) : (
+          <Text>Waiting for results...</Text>
+        )}
+        <Button title="Back to Session" onPress={handleBackToSession} />
       </View>
-      <Button title="Back to Session" onPress={handleBackToSession} />
-    </View>
+    </Background>
   );
 };
 
