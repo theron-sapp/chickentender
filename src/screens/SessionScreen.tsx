@@ -23,6 +23,8 @@ import {initializeSocket} from '../services/socketService';
 import {useFocusEffect} from '@react-navigation/native';
 import * as Font from 'expo-font';
 import Background from '../reusables/Background';
+import Slider from '@react-native-community/slider';
+import {CodeField, Cursor} from 'react-native-confirmation-code-field';
 
 const debug = false;
 
@@ -72,6 +74,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   >('default');
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [maxPriceLevel, setMaxPriceLevel] = useState<number>(1);
+  const [radius, setRadius] = useState<number>(5);
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -130,7 +133,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       return;
     }
     try {
-      const radiusInMeters = 3000; // Set your default search radius
+      const radiusInMeters = radius * 1609.34;
       const session = await createSession({
         username: username,
         param1: latitude ?? city,
@@ -216,12 +219,20 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               onChangeText={handleOnChangeText}
               autoCapitalize="none"
             />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter session code"
+            <CodeField
               value={sessionCodeInput}
               onChangeText={setSessionCodeInput}
-              autoCapitalize="none"
+              cellCount={6}
+              rootStyle={styles.codeFieldRoot}
+              keyboardType="number-pad"
+              textContentType="oneTimeCode"
+              renderCell={({index, symbol, isFocused}) => (
+                <Text
+                  key={index}
+                  style={[styles.cell, isFocused && styles.focusCell]}>
+                  {symbol || (isFocused ? <Cursor /> : null)}
+                </Text>
+              )}
             />
             <Button
               title="JOIN VOTE"
@@ -260,6 +271,20 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               maxPriceLevel={maxPriceLevel}
               setMaxPriceLevel={setMaxPriceLevel}
             />
+            <Slider
+              style={styles.radiusLabel}
+              minimumValue={1}
+              maximumValue={25}
+              step={1}
+              value={radius}
+              onValueChange={value => setRadius(value)}
+              minimumTrackTintColor="#4caf50"
+              maximumTrackTintColor="#000000"
+            />
+            <Text style={styles.radiusLabel}>
+              Radius: {radius.toFixed(0)} miles
+            </Text>
+
             <Button
               title="Use Current Location"
               onPress={requestAndUseLocation}
@@ -394,8 +419,10 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   input: {
-    width: '100%',
+    width: '90%',
     padding: 15,
+    fontSize: 18,
+    fontFamily: 'rubik',
     marginVertical: 10,
     borderWidth: 1,
     borderColor: 'gray',
@@ -458,9 +485,43 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   priceLevelHeading: {
+    fontFamily: 'rubikItalic',
     fontSize: 18,
     textAlign: 'center',
     marginVertical: 5,
+  },
+  radiusLabel: {
+    fontFamily: 'rubik',
+    fontSize: 14,
+    textAlign: 'center',
+    marginVertical: 5,
+    width: '80%',
+    height: 30,
+  },
+  codeFieldRoot: {
+    marginTop: 20,
+    width: 280,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  cell: {
+    backgroundColor: 'white',
+    textAlignVertical: 'bottom',
+    width: 35,
+    height: 50,
+    fontSize: 36,
+    // fontFamily: 'rubik',
+    textAlign: 'center',
+    borderWidth: 1,
+    borderRadius: 7,
+    borderColor: 'black',
+    marginBottom: 20,
+    // marginRight: 10,
+  },
+  focusCell: {
+    borderColor: '#0000ff',
+    textAlignVertical: 'bottom',
+    verticalAlign: 'bottom', // or any other color to indicate focus
   },
 });
 
