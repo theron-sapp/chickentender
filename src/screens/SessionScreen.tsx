@@ -445,14 +445,14 @@ const styles = StyleSheet.create({
   },
   useLocationButton: {
     backgroundColor: '#80669d',
-    borderWidth: 3,
+    borderWidth: 0,
     borderColor: 'white',
     borderRadius: 13,
   },
   createSessionButton: {
     backgroundColor: '#5dbea3',
-    borderWidth: 3,
-    borderColor: 'white',
+    // borderWidth: 3,
+    // borderColor: 'white',
     borderRadius: 13,
   },
   joinSessionButton: {

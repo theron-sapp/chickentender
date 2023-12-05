@@ -213,19 +213,19 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: 'black',
-    borderWidth: 3,
+    borderWidth: 0,
     borderColor: 'white',
     borderRadius: 30,
   },
   startButton: {
     backgroundColor: '#5dbea3',
-    borderWidth: 3,
+    borderWidth: 0,
     borderColor: 'white',
     borderRadius: 13,
   },
   leaveButton: {
     backgroundColor: 'red',
-    borderWidth: 3,
+    borderWidth: 0,
     borderColor: 'white',
     borderRadius: 13,
   },
