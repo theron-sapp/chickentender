@@ -23,7 +23,7 @@ interface CreateSessionData {
 interface VoteData {
   code: string;
   username: string;
-  yelpBusinessId: string;
+  place_id: string;
   vote: string;
 }
 

@@ -94,7 +94,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
         try {
           await voteOnRestaurant(session.code, {
             username: username,
-            yelpBusinessId: restaurant.id,
+            place_id: restaurant.id,
             vote: 'like',
             code: session.code,
           });
