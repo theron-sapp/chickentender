@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-shadow */
+/* eslint-disable no-catch-shadow */
 // LobbyScreen.tsx
 import React, {useEffect, useState} from 'react';
 import {
@@ -12,18 +14,13 @@ import {
 import {Button} from 'react-native-elements';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-import {
-  joinSessionRoom,
-  subscribeToUserJoined,
-  startVoting,
-  subscribeToVotingStarted,
-  disconnectSocket,
-} from '../services/socketService';
+//import {joinSessionRoom,subscribeToUserJoined,startVoting,subscribeToVotingStarted,disconnectSocket} from '../services/socketService';
 import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
-import {User} from '../types/UserType';
+// import {User} from '../types/UserType';
 import Clipboard from '@react-native-community/clipboard';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
+import {getSession, startVoting} from '../services/apiService';
 
 interface LobbyScreenProps {
   navigation: LobbyScreenNavigationProp;
@@ -34,6 +31,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   const [users, setUsers] = useState<{username: string}[]>([]);
   const {username, setUsername} = useUser();
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Font loading logic
@@ -52,33 +50,59 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
     loadFonts();
 
-    if (session?.users && session?.sessionCreator) {
-      // Pass both session code and username of the session creator to the joinSessionRoom function
-      joinSessionRoom(session.code, session.sessionCreator);
+    const fetchSessionDetails = async () => {
+      if (session?.code && session?.votingComplete) {
+        try {
+          const updatedSession = await getSession(session.code);
+          setUsers(updatedSession.users);
 
-      const unsubscribeUserJoined = subscribeToUserJoined((newUser: User) => {
-        setUsers(prevUsers => {
-          // Check if the username is already in the list to avoid duplicates
-          if (prevUsers.every(user => user.username !== newUser.username)) {
-            return [...prevUsers, newUser];
+          // Check if voting has started and navigate to VotingScreen if true
+          if (updatedSession.votingStarted) {
+            navigation.navigate('Voting');
           }
-          return prevUsers;
-        });
-      });
+          setError(null);
+        } catch (error) {
+          console.error('Error fetching session details:', error);
+          console.log(`Session Voting status: ${session?.votingComplete}`);
+          setError(
+            'Failed to fetch session details. Please check your connection.',
+          );
+        }
+      }
+    };
 
-      const unsubscribeVotingStarted = subscribeToVotingStarted(() => {
-        navigation.navigate('Voting');
-      });
+    if (session?.users && session?.sessionCreator) {
+      // CODE FOR SOCKETS (if I use them at some point)
+      // joinSessionRoom(session.code, session.sessionCreator);
+
+      // const unsubscribeUserJoined = subscribeToUserJoined((newUser: User) => {
+      //   setUsers(prevUsers => {
+      //     // Check if the username is already in the list to avoid duplicates
+      //     if (prevUsers.every(user => user.username !== newUser.username)) {
+      //       return [...prevUsers, newUser];
+      //     }
+      //     return prevUsers;
+      //   });
+      // });
+
+      // const unsubscribeVotingStarted = subscribeToVotingStarted(() => {
+      //   navigation.navigate('Voting');
+      // });
 
       // Set the initial list of users when the component mounts
       setUsers(session.users);
+      const intervalId = setInterval(fetchSessionDetails, 3000);
 
-      return () => {
-        unsubscribeUserJoined();
-        unsubscribeVotingStarted();
-      };
+      return () => clearInterval(intervalId);
     }
   }, [navigation, session]);
+
+  // Display alert message for user if error
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error);
+    }
+  }, [error]);
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -95,13 +119,27 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     setUsername(''); // Reset user context
     setSession(null);
     setResults(null);
-    disconnectSocket();
+    // disconnectSocket();
     navigation.navigate('Session'); // Navigate back to the SessionScreen
   };
 
-  const handleStartVoting = () => {
+  // const handleStartVoting = () => {
+  //   if (session?.sessionCreator === username) {
+  //     startVoting(session.code);
+  //   }
+  // };
+
+  const handleStartVoting = async () => {
     if (session?.sessionCreator === username) {
-      startVoting(session.code);
+      try {
+        // Update the session to indicate that voting has started
+        // This could be a call to an API endpoint that updates the session state
+        await startVoting(session.code);
+        navigation.navigate('Voting');
+      } catch (error) {
+        console.error('Error starting voting:', error);
+        Alert.alert('Error', 'Failed to start voting. Please try again.');
+      }
     }
   };
 

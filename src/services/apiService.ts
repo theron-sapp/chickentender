@@ -1,9 +1,11 @@
 // chickentender/src/services/apiService.ts
 
-import Config from 'react-native-config';
 import {Platform} from 'react-native'; // apiService.ts
-if (Config.ENVIRONTMENT === 'prod') {
-  var BASE_URL = Config.BASE_URL;
+
+const prod = false;
+
+if (prod) {
+  var BASE_URL = 'https://thawing-temple-25026-f4399745428d.herokuapp.com/api';
 } else {
   if (Platform.OS === 'ios') {
     BASE_URL = 'http://localhost:3000/api';
@@ -38,7 +40,11 @@ async function handleResponse(response: Response) {
 }
 
 export const createSession = async (data: CreateSessionData) => {
-  console.log(`Create Session params: ${JSON.stringify(data)}`);
+  console.log(
+    `Prod: ${prod}\nBASE_URL:${BASE_URL}\nCreate Session params: ${JSON.stringify(
+      data,
+    )}`,
+  );
   try {
     const response = await fetch(`${BASE_URL}/sessions/`, {
       method: 'POST',
@@ -66,7 +72,7 @@ export const joinSession = async (sessionCode: string, username: string) => {
 };
 
 export const getSession = async (sessionCode: string) => {
-  const response = await fetch(`${BASE_URL}/sessions/${sessionCode}`, {
+  const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/details`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -103,7 +109,7 @@ export const updateUserVotingStatus = async (
 ) => {
   const data = {code: sessionCode, username: username};
   const response = await fetch(
-    `${BASE_URL}/session/${sessionCode}/user/${username}/donevoting`,
+    `${BASE_URL}/sessions/${sessionCode}/user/${username}/donevoting`,
     {
       method: 'PUT',
       headers: {
@@ -112,5 +118,15 @@ export const updateUserVotingStatus = async (
       body: JSON.stringify(data),
     },
   );
+  return handleResponse(response);
+};
+
+export const startVoting = async (sessionCode: string) => {
+  const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/close`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
   return handleResponse(response);
 };

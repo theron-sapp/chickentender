@@ -1,9 +1,8 @@
 // chickentender/src/screens/ResultsScreen.tsx
-import React, {useRef, useCallback} from 'react';
+import React, {useRef, useCallback, useEffect, useState} from 'react';
 import {View, Text, StyleSheet, Image, Button} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-import useSocket, {disconnectSocket} from '../services/socketService';
 import {ResultsScreenNavigationProp} from '../types/NavigationStackTypes';
 import {getWinningRestaurant} from '../services/apiService';
 import Background from '../reusables/Background';
@@ -18,22 +17,35 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   const {session, setSession, setResults} = useSession();
   const {setUsername} = useUser();
   const confettiRef = useRef<any>(null);
+  const [isFetching, setIsFetching] = useState(true);
 
   const fetchResults = useCallback(async () => {
-    if (session?.code) {
-      const response = await getWinningRestaurant(session.code);
-      setResults(response);
-      confettiRef.current?.start();
+    if (session?.code && isFetching) {
+      try {
+        const response = await getWinningRestaurant(session.code);
+        console.log('Fetched results:', response); // Debugging log
+        if (response && response.winner) {
+          setResults(response);
+          setIsFetching(false);
+          confettiRef.current?.start();
+        }
+      } catch (error) {
+        console.error('Error fetching results:', error);
+      }
     }
-  }, [session, setResults]);
+  }, [session, setResults, isFetching]);
 
-  useSocket('voting complete', fetchResults);
+  useEffect(() => {
+    if (isFetching) {
+      const intervalId = setInterval(fetchResults, 5000); // polling every 5 seconds
+      return () => clearInterval(intervalId);
+    }
+  }, [fetchResults, isFetching]);
 
   const handleBackToSession = () => {
     setUsername(''); // Reset user context
     setSession(null);
     setResults(null);
-    disconnectSocket();
     navigation.navigate('Session'); // Navigate back to the SessionScreen
   };
 

@@ -3,18 +3,22 @@ import {useEffect} from 'react';
 import io, {Socket} from 'socket.io-client';
 import {User} from '../types/UserType';
 import {EventName} from '../types/EventNameType';
-import Config from 'react-native-config';
 import {Platform} from 'react-native';
 
 let socket: Socket | null = null;
 
 let BASE_URL: string; // Declare BASE_URL as a string
 
-if (Config.ENVIRONTMENT === 'prod') {
-  BASE_URL = Config.BASE_URL || 'http://default-prod-url.com'; // Provide a default URL
+const prod = false;
+
+if (prod) {
+  BASE_URL = 'https://thawing-temple-25026-f4399745428d.herokuapp.com/api';
 } else {
-  BASE_URL =
-    Platform.OS === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
+  if (Platform.OS === 'ios') {
+    BASE_URL = 'http://localhost:3000/api';
+  } else {
+    BASE_URL = 'http://10.0.2.2:3000/api';
+  }
 }
 
 export const initializeSocket = () => {
@@ -48,7 +52,9 @@ export const emitDoneVoting = (sessionCode: string, username: string) => {
 };
 
 export const startVoting = (sessionCode: string) => {
-  console.log(`Emitting start voting for session code: ${sessionCode}`);
+  console.log(
+    `Emitting start voting for session code: ${sessionCode}\nUsing URL: ${BASE_URL}`,
+  );
   socket?.emit('start voting', sessionCode);
 };
 

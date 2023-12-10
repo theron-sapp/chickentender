@@ -11,8 +11,8 @@ import {
 import Swiper from 'react-native-deck-swiper';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-import {voteOnRestaurant} from '../services/apiService';
-import {disconnectSocket, emitDoneVoting} from '../services/socketService'; // Import the function from your socket service
+import {updateUserVotingStatus, voteOnRestaurant} from '../services/apiService';
+// import {disconnectSocket, emitDoneVoting} from '../services/socketService'; // Import the function from your socket service
 import {VotingScreenNavigationProp} from '../types/NavigationStackTypes';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
@@ -30,7 +30,21 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [shouldNavigate, setShouldNavigate] = useState(false); // New state
+  const [shouldNavigate] = useState(false); // New state
+
+  const completeVoting = useCallback(async () => {
+    if (!session) {
+      console.error('No session found');
+      return;
+    }
+    try {
+      await updateUserVotingStatus(session.code, username);
+      navigation.navigate('Results');
+    } catch (error) {
+      console.error('Error completing voting:', error);
+      Alert.alert('Error', 'Failed to complete voting. Please try again.');
+    }
+  }, [navigation, session, username]);
 
   useEffect(() => {
     // Font loading logic
@@ -50,24 +64,39 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     loadFonts();
   });
 
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setRemainingTime(time => {
+  //       // Check if the time is up
+  //       if (time <= 1 && session) {
+  //         clearInterval(interval);
+  //         emitDoneVoting(session.code, username);
+  //         setShouldNavigate(true); // Set flag to navigate
+  //         return 0;
+  //       }
+  //       return time - 1;
+  //     });
+  //   }, 1000);
+
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [session, username, navigation]);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime(time => {
-        // Check if the time is up
         if (time <= 1 && session) {
           clearInterval(interval);
-          emitDoneVoting(session.code, username);
-          setShouldNavigate(true); // Set flag to navigate
+          completeVoting(); // Call completeVoting when the time is up
           return 0;
         }
         return time - 1;
       });
     }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [session, username, navigation]);
+    return () => clearInterval(interval);
+  }, [session, username, completeVoting]);
 
   useEffect(() => {
     if (shouldNavigate) {
@@ -105,18 +134,17 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       }
       setCurrentIndex(index + 1);
       if (index === session.restaurants.length - 1) {
-        emitDoneVoting(session.code, username);
-        navigation.navigate('Results');
+        completeVoting(); // Call completeVoting when the last restaurant is swiped
       }
     },
-    [session, username, navigation],
+    [session, username, completeVoting],
   );
 
   const handleBackToSession = () => {
     setUsername(''); // Reset user context
     setSession(null);
     setResults(null);
-    disconnectSocket();
+    // disconnectSocket();
     navigation.navigate('Session'); // Navigate back to the SessionScreen
   };
 

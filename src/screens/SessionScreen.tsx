@@ -111,7 +111,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       try {
         const session = await joinSession(sessionCodeInput, username);
         setSession(session);
-        initializeSocket();
+        // initializeSocket();
         navigation.navigate('Lobby');
       } catch (error) {
         Alert.alert('Error', 'Failed to join session. Please try again.');

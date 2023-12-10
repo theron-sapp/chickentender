@@ -20,6 +20,7 @@ interface Session {
   restaurants: Restaurant[];
   votes: any[];
   results?: any;
+  votingComplete: boolean;
 }
 
 interface ISessionContext {
