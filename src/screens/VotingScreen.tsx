@@ -17,11 +17,42 @@ import {VotingScreenNavigationProp} from '../types/NavigationStackTypes';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
 import {Button} from 'react-native-elements';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
 }
-const VOTING_TIMEOUT_MS = 300000; // 5 minutes timeout for voting
+const VOTING_TIMEOUT_MS = 120000; // 5 minutes timeout for voting
+
+const renderStars = (rating: number) => {
+  const fullStars = Math.floor(rating);
+  const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+  const emptyStars = 5 - fullStars - halfStar;
+
+  return (
+    <>
+      {[...Array(fullStars)].map((_, i) => (
+        <MaterialIcons
+          key={`full-${i}`}
+          name="star"
+          size={20}
+          color="#ffd700"
+        />
+      ))}
+      {halfStar === 1 && (
+        <MaterialIcons name="star-half" size={20} color="#ffd700" />
+      )}
+      {[...Array(emptyStars)].map((_, i) => (
+        <MaterialIcons
+          key={`empty-${i}`}
+          name="star-outline"
+          size={20}
+          color="#ffd700"
+        />
+      ))}
+    </>
+  );
+};
 
 const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const {session, setSession} = useSession();
@@ -30,8 +61,21 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
   const [fontsLoaded, setFontsLoaded] = useState(false);
-  const [shouldNavigate] = useState(false); // New state
+  const [shouldNavigate, setShouldNavigate] = useState(false); // New state
 
+  // const completeVoting = useCallback(async () => {
+  //   if (!session) {
+  //     console.error('No session found');
+  //     return;
+  //   }
+  //   try {
+  //     await updateUserVotingStatus(session.code, username);
+  //     navigation.navigate('Results');
+  //   } catch (error) {
+  //     console.error('Error completing voting:', error);
+  //     Alert.alert('Error', 'Failed to complete voting. Please try again.');
+  //   }
+  // }, [navigation, session, username]);
   const completeVoting = useCallback(async () => {
     if (!session) {
       console.error('No session found');
@@ -40,9 +84,17 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     try {
       await updateUserVotingStatus(session.code, username);
       navigation.navigate('Results');
-    } catch (error) {
-      console.error('Error completing voting:', error);
-      Alert.alert('Error', 'Failed to complete voting. Please try again.');
+    } catch (error: any) {
+      if (error.message.includes('Session not found')) {
+        // Alert.alert('Voting Ended', 'The voting session has ended.');
+        setShouldNavigate(true);
+        // Optionally navigate back to the session screen or another relevant screen
+        // navigation.navigate('Results');
+      } else {
+        Alert.alert('Error', 'Failed to complete voting. Please try again.');
+        console.error('Error completing voting:', error);
+        navigation.navigate('Session');
+      }
     }
   }, [navigation, session, username]);
 
@@ -88,6 +140,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       setRemainingTime(time => {
         if (time <= 1 && session) {
           clearInterval(interval);
+          Alert.alert('Voting Ended', 'The voting session has ended.');
           completeVoting(); // Call completeVoting when the time is up
           return 0;
         }
@@ -171,7 +224,10 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
               <Image style={styles.image} source={{uri: card.image}} />
               <Text style={styles.text}>{card.name}</Text>
               <Text style={styles.text}>{card.address}</Text>
-              <Text style={styles.text}>{card.rating}</Text>
+              {/* <Text style={styles.text}>{card.rating}</Text> */}
+              <View style={styles.starContainer}>
+                {renderStars(card.rating)}
+              </View>
             </View>
           )}
           onSwipedLeft={index => onSwiped('left', index)}
@@ -279,6 +335,12 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: 'space-between',
   },
+  starContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    // padding: 10,
+  },
   titleStyle: {
     fontFamily: 'rubikBold', // your custom font
     fontSize: 24,
@@ -327,6 +389,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     paddingTop: 10,
+  },
+  restaurantName: {
+    fontSize: 22,
+    fontFamily: 'rubikBold',
+    marginTop: 10,
   },
 });
 

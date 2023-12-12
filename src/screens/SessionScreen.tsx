@@ -178,8 +178,8 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
                 style={styles.imagelogo}
                 resizeMode="contain"
               />
-              <Text style={styles.logoText}>CHICKEN</Text>
-              <Text style={styles.logoText}>TENDER</Text>
+              {/* <Text style={styles.logoText}>CHICKEN</Text> */}
+              <Text style={styles.logoText}>TNDR</Text>
             </View>
             <Button
               title="JOIN A VOTE"

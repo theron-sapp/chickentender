@@ -9,9 +9,10 @@ import VotingScreen from './src/screens/VotingScreen';
 import ResultsScreen from './src/screens/ResultsScreen';
 import {UserProvider} from './src/contexts/UserContext';
 import {SessionProvider} from './src/contexts/SessionContext';
-import HeaderComponent from './src/reusables/HeaderComponent'; // Import your custom header
+// import HeaderComponent from './src/reusables/HeaderComponent';
 import React from 'react';
 import {UsersArrayProvider} from './src/contexts/UsersArrayContext';
+import {View} from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,28 +31,32 @@ const App: React.FC = () => {
                 name="Session"
                 component={SessionScreen}
                 options={{
-                  header: () => <HeaderComponent title="Chicken Tender" />,
+                  title: 'Chicken Tender',
+                  headerLeft: () => <View />,
                 }}
               />
               <Stack.Screen
                 name="Lobby"
                 component={LobbyScreen}
                 options={{
-                  header: () => <HeaderComponent title="Chicken Tender" />,
+                  title: 'Chicken Tender',
+                  headerLeft: () => <View />,
                 }}
               />
               <Stack.Screen
                 name="Voting"
                 component={VotingScreen}
                 options={{
-                  header: () => <HeaderComponent title="Vote!" />,
+                  title: 'Vote!',
+                  headerLeft: () => <View />,
                 }}
               />
               <Stack.Screen
                 name="Results"
                 component={ResultsScreen}
                 options={{
-                  header: () => <HeaderComponent title="Chicken Tender" />,
+                  title: 'Chicken Tender',
+                  headerLeft: () => <View />,
                 }}
               />
             </Stack.Navigator>

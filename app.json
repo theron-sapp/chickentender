@@ -1,4 +1,37 @@
 {
   "name": "chickentender",
-  "displayName": "chickentender"
+  "displayName": "TNDR",
+  "expo": {
+    "name": "tndr",
+    "slug": "chickentender",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./src/assets/images/Icon-512.png",
+    "splash": {
+      "image": "./src/assets/images/chickenfeetcanvas.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.autonextech.tndr"
+    },
+    "android": {
+      "package": "com.autonextech.tndr",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/Icon-512.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "privacy": "public",
+    "extra": {
+      "eas": {
+        "projectId": "e8ad7d9c-c1da-479a-b857-b8de48554d27"
+      }
+    }
+  }
 }

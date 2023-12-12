@@ -1,11 +1,19 @@
 // chickentender/src/screens/ResultsScreen.tsx
 import React, {useRef, useCallback, useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Image, Button} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Button,
+  ActivityIndicator,
+} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {ResultsScreenNavigationProp} from '../types/NavigationStackTypes';
 import {getWinningRestaurant} from '../services/apiService';
 import Background from '../reusables/Background';
+import * as Font from 'expo-font';
 
 const ConfettiCannon: any = require('react-native-confetti-cannon').default;
 
@@ -18,6 +26,24 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   const {setUsername} = useUser();
   const confettiRef = useRef<any>(null);
   const [isFetching, setIsFetching] = useState(true);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadFonts = async () => {
+      try {
+        await Font.loadAsync({
+          rubik: require('../assets/fonts/Rubik-Regular.ttf'),
+          rubikBold: require('../assets/fonts/Rubik-Bold.ttf'),
+          rubikItalic: require('../assets/fonts/Rubik-Italic.ttf'),
+        });
+        setFontsLoaded(true);
+      } catch (error) {
+        console.error('Error loading fonts', error);
+      }
+    };
+
+    loadFonts();
+  }, []);
 
   const fetchResults = useCallback(async () => {
     if (session?.code && isFetching) {
@@ -48,6 +74,10 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
     setResults(null);
     navigation.navigate('Session'); // Navigate back to the SessionScreen
   };
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
 
   const hasResults = session?.results && session.results.winner;
 
