@@ -22,7 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
 }
-const VOTING_TIMEOUT_MS = 120000; // 5 minutes timeout for voting
+const VOTING_TIMEOUT_MS = 5000000; // 5 minutes timeout for voting
 
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);
@@ -320,13 +320,15 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 13,
     bottom: 0,
-    width: '90%',
+    width: '100%',
   },
   buttonContainer: {
-    width: 300,
-    marginHorizontal: 50,
-    marginVertical: 20,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'flex-end', // Aligns children (button) to the end of the container
+    padding: 20, // Add padding for spacing from screen edges
   },
+
   timer: {
     fontSize: 20,
     fontWeight: 'bold',
