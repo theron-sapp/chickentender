@@ -1,9 +1,8 @@
 // src/types/NavigationStackTypes.ts
 import {StackNavigationProp} from '@react-navigation/stack';
 
-// Define the parameters for all the screens in the stack
 export type RootStackParamList = {
-  Login: undefined; // No parameters expected to be passed to this route
+  Login: undefined;
   Session: undefined;
   Lobby: undefined;
   Voting: undefined;

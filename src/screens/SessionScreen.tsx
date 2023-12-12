@@ -178,7 +178,6 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
                 style={styles.imagelogo}
                 resizeMode="contain"
               />
-              {/* <Text style={styles.logoText}>CHICKEN</Text> */}
               <Text style={styles.logoText}>TNDR</Text>
             </View>
             <Button
@@ -187,9 +186,9 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               containerStyle={styles.buttonContainer}
               titleStyle={styles.titleStyle}
               onPress={() => setView('join')}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
+              ViewComponent={LinearGradient}
               linearGradientProps={{
-                colors: ['#4e7d66', '#a6b599'], // Example gradient colors
+                colors: ['#4e7d66', '#a6b599'],
                 start: {x: 1, y: 0},
                 end: {x: 0, y: 0},
               }}
@@ -200,9 +199,9 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               containerStyle={styles.buttonContainer}
               titleStyle={styles.titleStyle}
               onPress={() => setView('create')}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
+              ViewComponent={LinearGradient}
               linearGradientProps={{
-                colors: ['#9d0303', '#e7941e'], // Example gradient colors
+                colors: ['#9d0303', '#e7941e'],
                 start: {x: 0, y: 0},
                 end: {x: 1, y: 0},
               }}
@@ -240,9 +239,9 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               buttonStyle={styles.button}
               containerStyle={styles.buttonContainer}
               titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
+              ViewComponent={LinearGradient}
               linearGradientProps={{
-                colors: ['#4e7d66', '#a6b599'], // Example gradient colors
+                colors: ['#4e7d66', '#a6b599'],
                 start: {x: 1, y: 0},
                 end: {x: 0, y: 0},
               }}
@@ -291,26 +290,13 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               buttonStyle={styles.useLocationButton}
               containerStyle={styles.buttonContainer}
               titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
+              ViewComponent={LinearGradient}
               linearGradientProps={{
-                colors: ['#835501', '#3b0101'], // Example gradient colors
+                colors: ['#835501', '#3b0101'],
                 start: {x: 1, y: 0},
                 end: {x: 0, y: 0},
               }}
             />
-            {/* <Button
-              title="Enter Location"
-              onPress={() => setView('manual')}
-              buttonStyle={styles.enterLocationButton}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
-              linearGradientProps={{
-                colors: ['#5dbea3', '#075640'], // Example gradient colors
-                start: {x: 1, y: 0},
-                end: {x: 0, y: 0},
-              }}
-            /> */}
             <Button
               title="GO BACK"
               onPress={() => setView('default')}
@@ -349,9 +335,9 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               buttonStyle={styles.createSessionButton}
               containerStyle={styles.buttonContainer}
               titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient} // Use LinearGradient instead of View for component
+              ViewComponent={LinearGradient}
               linearGradientProps={{
-                colors: ['#5dbea3', '#075640'], // Example gradient colors
+                colors: ['#5dbea3', '#075640'],
                 start: {x: 1, y: 0},
                 end: {x: 0, y: 0},
               }}
@@ -401,19 +387,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logoText: {
-    fontFamily: 'rubik', // your custom font
+    fontFamily: 'rubik',
     fontSize: 35,
     color: '#000000',
-    textShadowColor: '#555555', // choose a darker shade for depth
+    textShadowColor: '#555555',
     textShadowOffset: {width: 2, height: 2},
     textShadowRadius: 1,
     padding: 5,
   },
   titleStyle: {
-    fontFamily: 'rubikBold', // your custom font
+    fontFamily: 'rubikBold',
     fontSize: 24,
     color: 'white',
-    textShadowColor: 'black', // choose a darker shade for depth
+    textShadowColor: 'black',
     textShadowOffset: {width: 0, height: 1},
     textShadowRadius: 1,
     padding: 5,
@@ -451,15 +437,13 @@ const styles = StyleSheet.create({
   },
   createSessionButton: {
     backgroundColor: '#5dbea3',
-    // borderWidth: 3,
-    // borderColor: 'white',
     borderRadius: 13,
   },
   joinSessionButton: {
-    fontFamily: 'rubikBold', // your custom font
+    fontFamily: 'rubikBold',
     fontSize: 24,
     color: 'white',
-    textShadowColor: 'black', // choose a darker shade for depth
+    textShadowColor: 'black',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 1,
     padding: 5,
@@ -510,18 +494,16 @@ const styles = StyleSheet.create({
     width: 35,
     height: 50,
     fontSize: 36,
-    // fontFamily: 'rubik',
     textAlign: 'center',
     borderWidth: 1,
     borderRadius: 7,
     borderColor: 'black',
     marginBottom: 20,
-    // marginRight: 10,
   },
   focusCell: {
     borderColor: '#0000ff',
     textAlignVertical: 'bottom',
-    verticalAlign: 'bottom', // or any other color to indicate focus
+    verticalAlign: 'bottom',
   },
 });
 

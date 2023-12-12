@@ -29,21 +29,11 @@ interface VoteData {
   vote: string;
 }
 
-// Helper function to handle the response
-// async function handleResponse(response: Response) {
-//   if (response.ok) {
-//     return response.json();
-//   } else {
-//     const error = await response.text();
-//     throw new Error(error);
-//   }
-// }
-
 async function handleResponse(response: Response) {
   if (response.ok) {
     return response.json();
   } else {
-    const error = await response.json(); // Assuming the error is in JSON format
+    const error = await response.json();
     throw new Error(error.message || 'Unknown error occurred');
   }
 }

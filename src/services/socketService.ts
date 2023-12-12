@@ -7,7 +7,7 @@ import {Platform} from 'react-native';
 
 let socket: Socket | null = null;
 
-let BASE_URL: string; // Declare BASE_URL as a string
+let BASE_URL: string;
 
 const prod = false;
 
@@ -22,7 +22,7 @@ if (prod) {
 }
 
 export const initializeSocket = () => {
-  disconnectSocket(); // Disconnect existing socket if any
+  disconnectSocket();
   socket = io(BASE_URL);
 };
 
@@ -85,69 +85,3 @@ export const subscribeToUserDisconnect = (
 };
 
 export default useSocket;
-
-// // chickentender/src/services/socketService.ts
-// import {useEffect} from 'react';
-// import io, {Socket} from 'socket.io-client';
-// import {User} from '../types/UserType';
-// import {EventName} from '../types/EventNameType';
-
-// let socket: Socket | null = null;
-
-// const SOCKET_URL = 'http://localhost:3000'; // Update as needed
-
-// export const initializeSocket = () => {
-//   disconnectSocket(); // Disconnect existing socket if any
-//   socket = io(SOCKET_URL);
-// };
-
-// export const disconnectSocket = () => {
-//   if (socket) {
-//     socket.disconnect();
-//     socket = null;
-//   }
-// };
-
-// const useSocket = (eventName: EventName, handler: (...args: any[]) => void) => {
-//   useEffect(() => {
-//     socket?.on(eventName, handler);
-
-//     return () => {
-//       socket?.off(eventName, handler);
-//     };
-//   }, [eventName, handler]);
-// };
-
-// export const joinSessionRoom = (sessionCode: string, username: string) => {
-//   socket?.emit('join session', sessionCode, username);
-// };
-
-// export const emitDoneVoting = (sessionCode: string, username: string) => {
-//   socket?.emit('done voting', sessionCode, username);
-// };
-
-// export const startVoting = (sessionCode: string) => {
-//   console.log(`Emitting start voting for session code: ${sessionCode}`);
-//   socket?.emit('start voting', sessionCode);
-// };
-
-// export const subscribeToUserJoined = (callback: (user: User) => void) => {
-//   socket?.on('user joined', callback);
-//   return () => socket?.off('user joined', callback);
-// };
-
-// export const subscribeToVotingStarted = (callback: () => void) => {
-//   socket?.on('voting started', () => {
-//     console.log('Voting started event received');
-//     callback();
-//   });
-//   return () => socket?.off('voting started', callback);
-// };
-
-// // socketService.ts
-// export const subscribeToVotingComplete = (callback: () => void) => {
-//   socket?.on('voting complete', callback);
-//   return () => socket?.off('voting complete', callback);
-// };
-
-// export default useSocket;

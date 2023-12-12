@@ -14,9 +14,7 @@ import {
 import {Button} from 'react-native-elements';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-//import {joinSessionRoom,subscribeToUserJoined,startVoting,subscribeToVotingStarted,disconnectSocket} from '../services/socketService';
 import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
-// import {User} from '../types/UserType';
 import Clipboard from '@react-native-community/clipboard';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
@@ -72,24 +70,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     };
 
     if (session?.users && session?.sessionCreator) {
-      // CODE FOR SOCKETS (if I use them at some point)
-      // joinSessionRoom(session.code, session.sessionCreator);
-
-      // const unsubscribeUserJoined = subscribeToUserJoined((newUser: User) => {
-      //   setUsers(prevUsers => {
-      //     // Check if the username is already in the list to avoid duplicates
-      //     if (prevUsers.every(user => user.username !== newUser.username)) {
-      //       return [...prevUsers, newUser];
-      //     }
-      //     return prevUsers;
-      //   });
-      // });
-
-      // const unsubscribeVotingStarted = subscribeToVotingStarted(() => {
-      //   navigation.navigate('Voting');
-      // });
-
-      // Set the initial list of users when the component mounts
       setUsers(session.users);
       const intervalId = setInterval(fetchSessionDetails, 3000);
 
@@ -97,7 +77,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     }
   }, [navigation, session]);
 
-  // Display alert message for user if error
   useEffect(() => {
     if (error) {
       Alert.alert('Error', error);
@@ -116,24 +95,16 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   };
 
   const handleBackToSession = () => {
-    setUsername(''); // Reset user context
+    setUsername('');
     setSession(null);
     setResults(null);
-    // disconnectSocket();
-    navigation.navigate('Session'); // Navigate back to the SessionScreen
+    navigation.navigate('Session');
   };
-
-  // const handleStartVoting = () => {
-  //   if (session?.sessionCreator === username) {
-  //     startVoting(session.code);
-  //   }
-  // };
 
   const handleStartVoting = async () => {
     if (session?.sessionCreator === username) {
       try {
         // Update the session to indicate that voting has started
-        // This could be a call to an API endpoint that updates the session state
         await startVoting(session.code);
         navigation.navigate('Voting');
       } catch (error) {
@@ -193,10 +164,10 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
 const styles = StyleSheet.create({
   titleStyle: {
-    fontFamily: 'rubikBold', // your custom font
+    fontFamily: 'rubikBold',
     fontSize: 24,
     color: 'white',
-    textShadowColor: 'black', // choose a darker shade for depth
+    textShadowColor: 'black',
     textShadowOffset: {width: 0, height: 1},
     textShadowRadius: 1,
     padding: 5,
@@ -214,36 +185,30 @@ const styles = StyleSheet.create({
   },
   flatList: {
     width: '100%',
-    // Additional FlatList styles (e.g., margins, padding)
   },
   listItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     backgroundColor: 'white',
-    // Additional item styles
   },
   listItemText: {
     fontSize: 20,
     fontFamily: 'rubik',
-    // Additional text styles
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 10,
-    // Additional header styles
   },
   clipboardIcon: {
-    // Style for the copy icon or button
     padding: 5,
     backgroundColor: '#e7e7e7',
     borderRadius: 5,
   },
   clipboardText: {
     fontFamily: 'rubikItalic',
-    // Style for the text inside the copy button
   },
   text: {
     fontFamily: 'rubik',

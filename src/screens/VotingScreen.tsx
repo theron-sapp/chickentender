@@ -63,19 +63,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false); // New state
 
-  // const completeVoting = useCallback(async () => {
-  //   if (!session) {
-  //     console.error('No session found');
-  //     return;
-  //   }
-  //   try {
-  //     await updateUserVotingStatus(session.code, username);
-  //     navigation.navigate('Results');
-  //   } catch (error) {
-  //     console.error('Error completing voting:', error);
-  //     Alert.alert('Error', 'Failed to complete voting. Please try again.');
-  //   }
-  // }, [navigation, session, username]);
   const completeVoting = useCallback(async () => {
     if (!session) {
       console.error('No session found');
@@ -86,10 +73,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       navigation.navigate('Results');
     } catch (error: any) {
       if (error.message.includes('Session not found')) {
-        // Alert.alert('Voting Ended', 'The voting session has ended.');
         setShouldNavigate(true);
-        // Optionally navigate back to the session screen or another relevant screen
-        // navigation.navigate('Results');
       } else {
         Alert.alert('Error', 'Failed to complete voting. Please try again.');
         console.error('Error completing voting:', error);
@@ -115,25 +99,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
 
     loadFonts();
   });
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setRemainingTime(time => {
-  //       // Check if the time is up
-  //       if (time <= 1 && session) {
-  //         clearInterval(interval);
-  //         emitDoneVoting(session.code, username);
-  //         setShouldNavigate(true); // Set flag to navigate
-  //         return 0;
-  //       }
-  //       return time - 1;
-  //     });
-  //   }, 1000);
-
-  //   return () => {
-  //     clearInterval(interval);
-  //   };
-  // }, [session, username, navigation]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -187,18 +152,17 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       }
       setCurrentIndex(index + 1);
       if (index === session.restaurants.length - 1) {
-        completeVoting(); // Call completeVoting when the last restaurant is swiped
+        completeVoting(); // called when last card is swiped on
       }
     },
     [session, username, completeVoting],
   );
 
   const handleBackToSession = () => {
-    setUsername(''); // Reset user context
+    setUsername('');
     setSession(null);
     setResults(null);
-    // disconnectSocket();
-    navigation.navigate('Session'); // Navigate back to the SessionScreen
+    navigation.navigate('Session');
   };
 
   if (!fontsLoaded) {

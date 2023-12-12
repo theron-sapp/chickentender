@@ -69,10 +69,10 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   }, [fetchResults, isFetching]);
 
   const handleBackToSession = () => {
-    setUsername(''); // Reset user context
+    setUsername('');
     setSession(null);
     setResults(null);
-    navigation.navigate('Session'); // Navigate back to the SessionScreen
+    navigation.navigate('Session');
   };
 
   if (!fontsLoaded) {
@@ -102,7 +102,6 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
               {session.results.winner.name}
             </Text>
             <Text>{session.results.winner.address}</Text>
-            {/* Other details as needed */}
           </View>
         ) : (
           <Text>Waiting for results...</Text>
