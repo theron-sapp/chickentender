@@ -22,7 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
 }
-const VOTING_TIMEOUT_MS = 5000000; // 5 minutes timeout for voting
+const VOTING_TIMEOUT_MS = 120000; // 2min
 
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);

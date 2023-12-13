@@ -9,7 +9,7 @@ let socket: Socket | null = null;
 
 let BASE_URL: string;
 
-const prod = false;
+const prod = true;
 
 if (prod) {
   BASE_URL = 'https://thawing-temple-25026-f4399745428d.herokuapp.com/api';
