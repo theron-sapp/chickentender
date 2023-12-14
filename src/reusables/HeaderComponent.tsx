@@ -9,10 +9,6 @@ const HeaderComponent: React.FC<HeaderComponentProps> = ({title}) => {
   return (
     <View style={styles.headerContainer}>
       <Text style={styles.title}>{title}</Text>
-      {/* Placeholder for left button (if needed later) */}
-      {/* <View style={styles.placeholder} /> */}
-      {/* Placeholder for right button (if needed later) */}
-      {/* <View style={styles.placeholder} /> */}
     </View>
   );
 };

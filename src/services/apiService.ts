@@ -31,6 +31,7 @@ interface VoteData {
 
 async function handleResponse(response: Response) {
   if (response.ok) {
+    // console.log(`Session Details: ${JSON.stringify(response, null, 2)}`);
     return response.json();
   } else {
     const error = await response.json();
@@ -67,6 +68,7 @@ export const joinSession = async (sessionCode: string, username: string) => {
     },
     body: JSON.stringify({username}),
   });
+  // console.log(`Session Details: ${JSON.stringify(response, null, 2)}`);
   return handleResponse(response);
 };
 

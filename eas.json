@@ -19,6 +19,12 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "theronsapp@gmail.com",
+        "ascAppId": "6474207922",
+        "appleTeamId": "Q3GHJ2Z433"
+      }
+    }
   }
 }

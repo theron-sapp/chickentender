@@ -111,7 +111,8 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       try {
         const session = await joinSession(sessionCodeInput, username);
         setSession(session);
-        // initializeSocket();
+        console.log(`Session Details: ${JSON.stringify(session, null, 2)}`);
+        initializeSocket();
         navigation.navigate('Lobby');
       } catch (error) {
         Alert.alert('Error', 'Failed to join session. Please try again.');
@@ -164,7 +165,9 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
 
   const handleOnChangeText = (input: any) => {
     setUsername(input);
-    addUser({username: input}); // Add the user to the users array in UsersArrayContext
+    addUser({
+      username: input,
+    }); // Add the user to the users array in UsersArrayContext
   };
 
   return (

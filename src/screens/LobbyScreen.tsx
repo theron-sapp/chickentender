@@ -26,10 +26,12 @@ interface LobbyScreenProps {
 
 const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   const {session, setSession, setResults} = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [users, setUsers] = useState<{username: string}[]>([]);
   const {username, setUsername} = useUser();
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [updateCount, setUpdateCount] = useState(0);
 
   useEffect(() => {
     // Font loading logic
@@ -48,34 +50,33 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
     loadFonts();
 
-    const fetchSessionDetails = async () => {
-      if (session?.code && session?.votingComplete) {
+    const intervalId = setInterval(async () => {
+      if (session?.code) {
         try {
           const updatedSession = await getSession(session.code);
+          // console.log(updatedSession);
+          // console.log('hi');
+          setSession(updatedSession); // Update session context
           setUsers(updatedSession.users);
-
-          // Check if voting has started and navigate to VotingScreen if true
+          // console.log(users);
           if (updatedSession.votingStarted) {
             navigation.navigate('Voting');
           }
           setError(null);
         } catch (error) {
           console.error('Error fetching session details:', error);
-          console.log(`Session Voting status: ${session?.votingComplete}`);
           setError(
             'Failed to fetch session details. Please check your connection.',
           );
         }
       }
-    };
 
-    if (session?.users && session?.sessionCreator) {
-      setUsers(session.users);
-      const intervalId = setInterval(fetchSessionDetails, 3000);
+      setUpdateCount(count => count + 1); // Increment the counter to force a rerender
+      console.log(updateCount);
+    }, 3000);
 
-      return () => clearInterval(intervalId);
-    }
-  }, [navigation, session]);
+    return () => clearInterval(intervalId);
+  }, [session?.code, navigation, setSession, updateCount]);
 
   useEffect(() => {
     if (error) {
@@ -114,12 +115,13 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     }
   };
 
+  // console.log(users);
+
   return (
     <Background>
       <View style={styles.container}>
-        <Text style={styles.title}>Lobby</Text>
         <FlatList
-          data={users}
+          data={session?.users}
           keyExtractor={item => item.username}
           renderItem={({item}) => (
             <View style={styles.listItem}>
@@ -236,6 +238,10 @@ const styles = StyleSheet.create({
     width: 300,
     marginHorizontal: 50,
     marginVertical: 10,
+  },
+  usersList: {
+    width: '100%',
+    // Add any additional styling needed for the users list
   },
 });
 
