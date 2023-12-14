@@ -11,7 +11,7 @@ import {
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {ResultsScreenNavigationProp} from '../types/NavigationStackTypes';
-import {getWinningRestaurant} from '../services/apiService';
+import {getSession, getWinningRestaurant} from '../services/apiService';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
 
@@ -27,6 +27,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   const confettiRef = useRef<any>(null);
   const [isFetching, setIsFetching] = useState(true);
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [, setSessionCodeInput] = useState('');
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -47,16 +48,21 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
 
   const fetchResults = useCallback(async () => {
     if (session?.code && isFetching) {
-      try {
-        const response = await getWinningRestaurant(session.code);
-        console.log('Fetched results:', response); // Debugging log
-        if (response && response.winner) {
-          setResults(response);
-          setIsFetching(false);
-          confettiRef.current?.start();
+      const sessionUpdate = await getSession(session.code);
+      console.log(`Session code: ${session?.code} theron`);
+
+      if (sessionUpdate?.votingCompleted) {
+        try {
+          const response = await getWinningRestaurant(session.code);
+          console.log('Fetched results:', response); // Debugging log
+          if (response && response.winner) {
+            setResults(response);
+            setIsFetching(false);
+            confettiRef.current?.start();
+          }
+        } catch (error) {
+          console.error('Error fetching results:', error);
         }
-      } catch (error) {
-        console.error('Error fetching results:', error);
       }
     }
   }, [session, setResults, isFetching]);
@@ -69,6 +75,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   }, [fetchResults, isFetching]);
 
   const handleBackToSession = () => {
+    setSessionCodeInput('');
     setUsername('');
     setSession(null);
     setResults(null);

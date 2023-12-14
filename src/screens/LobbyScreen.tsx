@@ -31,7 +31,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   const {username, setUsername} = useUser();
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [updateCount, setUpdateCount] = useState(0);
+  const [, setSessionCodeInput] = useState('');
 
   useEffect(() => {
     // Font loading logic
@@ -50,16 +50,17 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
     loadFonts();
 
-    const intervalId = setInterval(async () => {
+    let intervalId: string | number | NodeJS.Timeout | undefined;
+
+    const fetchAndUpdateSession = async () => {
       if (session?.code) {
         try {
           const updatedSession = await getSession(session.code);
-          // console.log(updatedSession);
-          // console.log('hi');
           setSession(updatedSession); // Update session context
           setUsers(updatedSession.users);
-          // console.log(users);
-          if (updatedSession.votingStarted) {
+
+          if (!updatedSession.lobbyOpen) {
+            clearInterval(intervalId); // Clear the interval if the lobby is no longer open
             navigation.navigate('Voting');
           }
           setError(null);
@@ -70,13 +71,12 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
           );
         }
       }
+    };
 
-      setUpdateCount(count => count + 1); // Increment the counter to force a rerender
-      console.log(updateCount);
-    }, 3000);
+    intervalId = setInterval(fetchAndUpdateSession, 3000);
 
-    return () => clearInterval(intervalId);
-  }, [session?.code, navigation, setSession, updateCount]);
+    return () => clearInterval(intervalId); // Clean up
+  }, [session?.code, navigation, setSession]);
 
   useEffect(() => {
     if (error) {
@@ -96,6 +96,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   };
 
   const handleBackToSession = () => {
+    setSessionCodeInput('');
     setUsername('');
     setSession(null);
     setResults(null);
@@ -114,8 +115,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
       }
     }
   };
-
-  // console.log(users);
 
   return (
     <Background>

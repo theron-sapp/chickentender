@@ -111,7 +111,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       try {
         const session = await joinSession(sessionCodeInput, username);
         setSession(session);
-        console.log(`Session Details: ${JSON.stringify(session, null, 2)}`);
+        // console.log(`Session Details: ${JSON.stringify(session, null, 2)}`);
         initializeSocket();
         navigation.navigate('Lobby');
       } catch (error) {

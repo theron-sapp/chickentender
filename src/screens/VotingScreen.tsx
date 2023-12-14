@@ -62,6 +62,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false); // New state
+  const [, setSessionCodeInput] = useState('');
 
   const completeVoting = useCallback(async () => {
     if (!session) {
@@ -69,6 +70,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       return;
     }
     try {
+      console.log('updating user voting status');
       await updateUserVotingStatus(session.code, username);
       navigation.navigate('Results');
     } catch (error: any) {
@@ -159,6 +161,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   );
 
   const handleBackToSession = () => {
+    setSessionCodeInput('');
     setUsername('');
     setSession(null);
     setResults(null);
