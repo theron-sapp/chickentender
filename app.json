@@ -1,12 +1,12 @@
 {
   "name": "chickentender",
-  "displayName": "Diner Findr",
+  "displayName": "Food Finder",
   "expo": {
-    "name": "dinerfindr",
+    "name": "foodfinder",
     "slug": "chickentender",
     "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./src/assets/images/Diner-Icon-1024.png",
+    "icon": "./src/assets/images/food-finder-logo-03-1024.png",
     "splash": {
       "image": "./src/assets/images/Diner-Background-Image01.png",
       "resizeMode": "contain",
@@ -18,12 +18,12 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.autonextech.dinerfindr"
+      "bundleIdentifier": "com.autonextech.foodfinder"
     },
     "android": {
-      "package": "com.autonextech.dinerfindr",
+      "package": "com.autonextech.foodfinder",
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/Diner-Icon-1024.png",
+        "foregroundImage": "./src/assets/images/food-finder-logo-03-1024.png",
         "backgroundColor": "#FFFFFF"
       }
     },

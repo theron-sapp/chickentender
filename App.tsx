@@ -18,11 +18,13 @@ const Stack = createNativeStackNavigator();
 
 const loadFonts = async () => {
   await Font.loadAsync({
-    rubik: require('./src/assets/fonts/Rubik-Regular.ttf'),
-    rubikBold: require('./src/assets/fonts/Rubik-Bold.ttf'),
-    rubikItalic: require('./src/assets/fonts/Rubik-Italic.ttf'),
-    sansNeon: require('./src/assets/fonts/NeonSans.ttf'),
+    neonsans: require('./src/assets/fonts/NeonSans.ttf'),
     beon: require('./src/assets/fonts/Beon-Regular.ttf'),
+    neon: require('./src/assets/fonts/HTNeonW01Regular.ttf'),
+    brush: require('./src/assets/fonts/Brush-Script.ttf'),
+    hometown: require('./src/assets/fonts/Hometown-Free-Script.ttf'),
+    city: require('./src/assets/fonts/NEONCITY.ttf'),
+    bines: require('./src/assets/fonts/NeonBines.ttf'),
     // place holder for more fonts
   });
 };

@@ -74,7 +74,7 @@ const PriceLevelSelector: React.FC<PriceLevelSelectorProps> = ({
 };
 
 const neonSignContainerStyle = {
-  marginBottom: 10,
+  marginBottom: 1,
 };
 
 const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
@@ -173,35 +173,39 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
         <View style={styles.container}>
           <View style={styles.container}>
             <NeonSign
-              text="DINER"
+              text="Food"
               containerStyle={neonSignContainerStyle}
               textStyle={{
                 color: '#ffffff',
-                fontSize: 68,
+                fontSize: 76,
                 textAlign: 'center',
-                shadowColor: '#ff4aa3',
-                textShadowColor: '#ff4aa3',
+                shadowColor: '#df007c',
+                textShadowColor: '#df007c',
                 textShadowOffset: {width: 0, height: 0},
                 textShadowRadius: 2,
+                padding: 1,
                 shadowOpacity: 1,
                 shadowRadius: 30,
                 fontFamily: 'beon',
                 fontWeight: 'bold',
+                margin: -10,
+                marginTop: 10,
               }}
             />
             <NeonSign
-              text="FINDR"
+              text="Finder"
               containerStyle={neonSignContainerStyle}
               textStyle={{
                 color: '#ffffff',
                 fontSize: 68,
                 shadowRadius: 30,
-                shadowColor: '#ff4aa3',
+                shadowColor: '#00bb62',
                 shadowOpacity: 1,
                 textAlign: 'center',
-                textShadowColor: '#ff4aa3',
+                textShadowColor: '#00bb62',
                 textShadowOffset: {width: 0, height: 0},
                 textShadowRadius: 2,
+                padding: 1,
                 fontFamily: 'beon',
                 fontWeight: 'bold',
               }}
