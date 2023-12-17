@@ -2,7 +2,7 @@
 
 import {Platform} from 'react-native'; // apiService.ts
 
-const prod = false;
+const prod = true;
 
 if (prod) {
   var BASE_URL = 'https://thawing-temple-25026-f4399745428d.herokuapp.com/api';

@@ -1,23 +1,20 @@
+/* eslint-disable react-native/no-inline-styles */
 // VotingScreen.tsx
 import React, {useState, useCallback, useEffect} from 'react';
-import {
-  View,
-  Image,
-  Text,
-  StyleSheet,
-  Alert,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Image, Text, StyleSheet, Alert} from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
-import {updateUserVotingStatus, voteOnRestaurant} from '../services/apiService';
+import {
+  leaveSession,
+  updateUserVotingStatus,
+  voteOnRestaurant,
+} from '../services/apiService';
 // import {disconnectSocket, emitDoneVoting} from '../services/socketService'; // Import the function from your socket service
 import {VotingScreenNavigationProp} from '../types/NavigationStackTypes';
 import Background from '../reusables/Background';
-import * as Font from 'expo-font';
-import {Button} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import NeonButton from '../reusables/NeonButton';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
@@ -60,7 +57,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const {username, setUsername} = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [shouldNavigate, setShouldNavigate] = useState(false); // New state
   const [, setSessionCodeInput] = useState('');
 
@@ -85,24 +81,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   }, [navigation, session, username]);
 
   useEffect(() => {
-    // Font loading logic
-    const loadFonts = async () => {
-      try {
-        await Font.loadAsync({
-          rubik: require('../assets/fonts/Rubik-Regular.ttf'),
-          rubikBold: require('../assets/fonts/Rubik-Bold.ttf'),
-          rubikItalic: require('../assets/fonts/Rubik-Italic.ttf'),
-        });
-        setFontsLoaded(true);
-      } catch (error) {
-        console.error('Error loading fonts', error);
-      }
-    };
-
-    loadFonts();
-  });
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setRemainingTime(time => {
         if (time <= 1 && session) {
@@ -118,11 +96,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     return () => clearInterval(interval);
   }, [session, username, completeVoting]);
 
-  useEffect(() => {
-    if (shouldNavigate) {
-      navigation.navigate('Results');
-    }
-  }, [shouldNavigate, navigation]);
   // Format remaining time
   const formatTime = (timeInSeconds: number) => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -160,17 +133,32 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     [session, username, completeVoting],
   );
 
-  const handleBackToSession = () => {
-    setSessionCodeInput('');
-    setUsername('');
-    setSession(null);
-    setResults(null);
-    navigation.navigate('Session');
+  const handleBackToSession = async () => {
+    try {
+      // Call leaveSession API
+      if (session?.code && username) {
+        await leaveSession(session.code, username);
+      }
+
+      // Clear local state
+      setSessionCodeInput('');
+      setUsername('');
+      setSession(null);
+      setResults(null);
+
+      // Navigate back to the session screen
+      navigation.navigate('Session');
+    } catch (error) {
+      console.error('Error leaving session:', error);
+      Alert.alert('Error', 'Failed to leave the session. Please try again.');
+    }
   };
 
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
+  useEffect(() => {
+    if (shouldNavigate) {
+      navigation.navigate('Results');
+    }
+  }, [shouldNavigate, navigation]);
 
   if (!session) {
     return (
@@ -189,9 +177,8 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
           renderCard={card => (
             <View style={styles.card}>
               <Image style={styles.image} source={{uri: card.image}} />
-              <Text style={styles.text}>{card.name}</Text>
+              <Text style={styles.restaurantName}>{card.name}</Text>
               <Text style={styles.text}>{card.address}</Text>
-              {/* <Text style={styles.text}>{card.rating}</Text> */}
               <View style={styles.starContainer}>
                 {renderStars(card.rating)}
               </View>
@@ -208,56 +195,68 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
           backgroundColor="none"
           overlayLabels={{
             left: {
-              title: 'NOPE',
+              title: '',
               style: {
                 label: {
                   backgroundColor: 'red',
                   borderColor: 'red',
                   color: 'white',
                   borderWidth: 1,
+                  width: '100%',
+                  height: 400,
+                  opacity: 0.5,
                 },
                 wrapper: {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 20,
-                  marginLeft: -20,
+                  marginTop: 0, // Increase margin for better coverage
+                  marginLeft: 0, // Increase margin to reach the edge
+                  width: '100%',
                 },
               },
             },
             bottom: {
-              title: 'NOPE',
+              title: '',
               style: {
                 label: {
                   backgroundColor: 'red',
                   borderColor: 'red',
                   color: 'white',
                   borderWidth: 1,
+                  width: '100%',
+                  height: 400,
+                  opacity: 0.5,
                 },
                 wrapper: {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 20,
-                  marginLeft: -20,
+                  marginTop: 0, // Increase margin for better coverage
+                  marginLeft: 0, // Increase margin to reach the edge
+                  width: '100%',
                 },
               },
             },
             right: {
-              title: 'LIKE',
+              title: '',
               style: {
                 label: {
                   backgroundColor: 'green',
                   borderColor: 'green',
                   color: 'white',
                   borderWidth: 1,
+                  width: '100%',
+                  height: 400,
+                  opacity: 0.5,
                 },
                 wrapper: {
                   flexDirection: 'column',
-                  alignItems: 'flex-start',
+                  alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 20,
-                  marginLeft: 20,
+                  marginTop: 0, // Increase margin for better coverage
+                  marginLeft: 0, // Increase margin to reach the edge
+                  width: '100%',
                 },
               },
             },
@@ -269,13 +268,17 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
                   borderColor: 'green',
                   color: 'white',
                   borderWidth: 1,
+                  width: '100%',
+                  height: 400,
+                  opacity: 0.5,
                 },
                 wrapper: {
                   flexDirection: 'column',
-                  alignItems: 'flex-start',
+                  alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 20,
-                  marginLeft: 20,
+                  marginTop: 0, // Increase margin for better coverage
+                  marginLeft: 0, // Increase margin to reach the edge
+                  width: '100%',
                 },
               },
             },
@@ -286,11 +289,36 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
         </Text>
       </View>
       <View style={styles.buttonContainer}>
-        <Button
-          title="LEAVE"
+        <NeonButton
+          title="ABANDON SESSION"
           onPress={handleBackToSession}
-          buttonStyle={styles.leaveButton}
-          titleStyle={styles.titleStyle}
+          buttonStyle={{
+            margin: 15,
+            marginBottom: '7%',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(52, 52, 52, 0.0)',
+            padding: 1,
+            width: '80%',
+            borderWidth: 1,
+            borderRadius: 13,
+            borderColor: 'red',
+            shadowColor: 'red',
+            shadowOffset: {width: 0, height: 0},
+            shadowOpacity: 0.5,
+            shadowRadius: 10,
+            elevation: 6,
+          }}
+          textStyle={{
+            color: '#ffffff',
+            fontSize: 26,
+            textAlign: 'center',
+            textShadowColor: 'red',
+            textShadowOffset: {width: 0, height: 0},
+            textShadowRadius: 10,
+            fontFamily: 'beon',
+            fontWeight: 'bold',
+          }}
         />
       </View>
     </Background>
@@ -333,6 +361,8 @@ const styles = StyleSheet.create({
   },
 
   timer: {
+    color: 'white',
+    fontFamily: 'beon',
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
@@ -340,29 +370,39 @@ const styles = StyleSheet.create({
   card: {
     height: 400,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#E8E8E8',
+    borderWidth: 1,
+    borderColor: '#636262',
     justifyContent: 'center',
     alignItems: 'center', // Center items horizontally
-    backgroundColor: 'white',
+    backgroundColor: '#383838',
     overflow: 'hidden',
   },
   image: {
-    width: '90%',
-    height: '60%',
+    width: '85%',
+    height: '55%',
     justifyContent: 'center',
     resizeMode: 'cover',
     borderRadius: 10,
   },
   text: {
-    fontSize: 20,
+    fontSize: 16,
     textAlign: 'center',
     paddingTop: 10,
+    fontFamily: 'beon',
+    color: 'white',
+    shadowColor: 'black',
+    shadowRadius: 4,
+    shadowOpacity: 1,
   },
   restaurantName: {
-    fontSize: 22,
-    fontFamily: 'rubikBold',
-    marginTop: 10,
+    fontSize: 28,
+    textAlign: 'center',
+    paddingTop: 10,
+    fontFamily: 'beon',
+    color: 'white',
+    shadowColor: 'yellow',
+    shadowRadius: 4,
+    shadowOpacity: 1,
   },
 });
 

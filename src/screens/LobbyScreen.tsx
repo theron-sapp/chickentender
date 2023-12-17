@@ -11,7 +11,6 @@ import {
   FlatList,
   Alert,
   TouchableOpacity,
-  ActivityIndicator,
   Share,
 } from 'react-native';
 // import {Button} from 'react-native-elements';
@@ -19,7 +18,6 @@ import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
 import Background from '../reusables/Background';
-import * as Font from 'expo-font';
 import {
   deleteSession,
   getSession,
@@ -54,26 +52,11 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [users, setUsers] = useState<{username: string}[]>([]);
   const {username, setUsername} = useUser();
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [, setSessionCodeInput] = useState('');
 
   useEffect(() => {
     // Font loading logic
-    const loadFonts = async () => {
-      try {
-        await Font.loadAsync({
-          rubik: require('../assets/fonts/Rubik-Regular.ttf'),
-          rubikBold: require('../assets/fonts/Rubik-Bold.ttf'),
-          rubikItalic: require('../assets/fonts/Rubik-Italic.ttf'),
-        });
-        setFontsLoaded(true);
-      } catch (error) {
-        console.error('Error loading fonts', error);
-      }
-    };
-
-    loadFonts();
 
     let intervalId: string | number | NodeJS.Timeout | undefined;
 
@@ -131,10 +114,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
       Alert.alert('Error', error);
     }
   }, [error]);
-
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
 
   const shareSessionCode = () => {
     if (session?.code) {
