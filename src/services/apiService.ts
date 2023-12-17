@@ -2,7 +2,7 @@
 
 import {Platform} from 'react-native'; // apiService.ts
 
-const prod = true;
+const prod = false;
 
 if (prod) {
   var BASE_URL = 'https://thawing-temple-25026-f4399745428d.herokuapp.com/api';
@@ -70,6 +70,36 @@ export const joinSession = async (sessionCode: string, username: string) => {
   });
   // console.log(`Session Details: ${JSON.stringify(response, null, 2)}`);
   return handleResponse(response);
+};
+
+export const leaveSession = async (sessionCode: string, username: string) => {
+  const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/leave`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({username}),
+  });
+  // console.log(`Session Details: ${JSON.stringify(response, null, 2)}`);
+  return handleResponse(response);
+};
+
+export const deleteSession = async (sessionCode: string, username: string) => {
+  try {
+    const response = await fetch(
+      `${BASE_URL}/sessions/${sessionCode}/${username}/delete`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    throw error;
+  }
 };
 
 export const getSession = async (sessionCode: string) => {

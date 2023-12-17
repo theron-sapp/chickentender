@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-native/no-inline-styles */
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable no-catch-shadow */
 // LobbyScreen.tsx
@@ -10,15 +12,38 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
+  Share,
 } from 'react-native';
-import {Button} from 'react-native-elements';
+// import {Button} from 'react-native-elements';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {LobbyScreenNavigationProp} from '../types/NavigationStackTypes';
-import Clipboard from '@react-native-community/clipboard';
 import Background from '../reusables/Background';
 import * as Font from 'expo-font';
-import {getSession, startVoting} from '../services/apiService';
+import {
+  deleteSession,
+  getSession,
+  leaveSession,
+  startVoting,
+} from '../services/apiService';
+import NeonSign from '../reusables/NeonSign';
+import NeonButton from '../reusables/NeonButton';
+
+const shadowColors = [
+  '#c20404',
+  '#f08c0a',
+  '#e8e409',
+  '#36e809',
+  '#09e8d9',
+  '#253df5',
+  '#f125f5',
+  '#f5256e',
+];
+
+// Function to get a random color
+const getRandomColor = () => {
+  return shadowColors[Math.floor(Math.random() * shadowColors.length)];
+};
 
 interface LobbyScreenProps {
   navigation: LobbyScreenNavigationProp;
@@ -52,23 +77,46 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
     let intervalId: string | number | NodeJS.Timeout | undefined;
 
+    const handleSessionNotFound = () => {
+      Alert.alert(
+        'Session No Longer Active',
+        'The session has been deleted or is no longer available.',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setSessionCodeInput('');
+              setUsername('');
+              setSession(null);
+              setResults(null);
+              navigation.navigate('Session');
+            },
+          },
+        ],
+      );
+    };
+
     const fetchAndUpdateSession = async () => {
       if (session?.code) {
         try {
           const updatedSession = await getSession(session.code);
-          setSession(updatedSession); // Update session context
+          setSession(updatedSession);
           setUsers(updatedSession.users);
 
           if (!updatedSession.lobbyOpen) {
-            clearInterval(intervalId); // Clear the interval if the lobby is no longer open
+            clearInterval(intervalId);
             navigation.navigate('Voting');
           }
           setError(null);
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error fetching session details:', error);
-          setError(
-            'Failed to fetch session details. Please check your connection.',
-          );
+          if (error.message.includes('Session not found')) {
+            handleSessionNotFound(); // Handle the scenario when the session is not found
+          } else {
+            setError(
+              'Failed to fetch session details. Please check your connection.',
+            );
+          }
         }
       }
     };
@@ -88,19 +136,38 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
-  const copyToClipboard = () => {
+  const shareSessionCode = () => {
     if (session?.code) {
-      Clipboard.setString(session.code);
-      Alert.alert('Copied', 'Session code copied to clipboard!');
+      Share.share({
+        message: `Join our session with this code: ${session.code}`,
+      })
+        .then(result => console.log(result))
+        .catch(error => console.log('Error sharing', error));
     }
   };
 
-  const handleBackToSession = () => {
-    setSessionCodeInput('');
-    setUsername('');
-    setSession(null);
-    setResults(null);
-    navigation.navigate('Session');
+  const handleBackToSession = async () => {
+    try {
+      if (session?.sessionCreator === username) {
+        // If user is the session creator, delete the session
+        await deleteSession(session.code, username);
+      } else if (session?.code && username) {
+        // If user is not the session creator, just leave the session
+        await leaveSession(session.code, username);
+      }
+
+      // Clear local state
+      setSessionCodeInput('');
+      setUsername('');
+      setSession(null);
+      setResults(null);
+
+      // Navigate back to the session screen
+      navigation.navigate('Session');
+    } catch (error) {
+      console.error('Error handling session:', error);
+      Alert.alert('Error', 'Failed to handle the session. Please try again.');
+    }
   };
 
   const handleStartVoting = async () => {
@@ -122,41 +189,124 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
         <FlatList
           data={session?.users}
           keyExtractor={item => item.username}
-          renderItem={({item}) => (
-            <View style={styles.listItem}>
-              <Text style={styles.listItemText}>
-                {item.username.toUpperCase()}
-              </Text>
-            </View>
-          )}
+          renderItem={({item}) => {
+            const randomColor = getRandomColor(); // Get a random color for each item
+            return (
+              <View style={styles.listItem}>
+                <NeonSign
+                  text={item.username.toUpperCase()}
+                  textStyle={{
+                    color: '#ffffff',
+                    fontSize: 18,
+                    textAlign: 'center',
+                    shadowColor: randomColor,
+                    textShadowColor: randomColor,
+                    textShadowOffset: {width: 0, height: 0},
+                    textShadowRadius: 2,
+                    shadowOpacity: 1,
+                    shadowRadius: 10,
+                    fontFamily: 'beon',
+                    fontWeight: 'bold',
+                  }}
+                />
+              </View>
+            );
+          }}
           ListHeaderComponent={
             <View style={styles.header}>
               <Text style={styles.text}>Session Code: {session?.code}</Text>
-              <TouchableOpacity
-                onPress={copyToClipboard}
-                style={styles.clipboardIcon}>
-                {/* You can use an icon here */}
-                <Text style={styles.clipboardText}>Copy</Text>
+              <TouchableOpacity onPress={shareSessionCode}>
+                <Text style={styles.clipboardText}>
+                  <NeonSign
+                    text="SHARE"
+                    textStyle={{
+                      color: '#ffffff',
+                      fontSize: 18,
+                      textAlign: 'center',
+                      shadowColor: '#2571f5',
+                      textShadowColor: '#2571f5',
+                      textShadowOffset: {width: 0, height: 0},
+                      textShadowRadius: 2,
+                      shadowOpacity: 1,
+                      shadowRadius: 10,
+                      fontFamily: 'beon',
+                      fontWeight: 'bold',
+                    }}
+                  />
+                </Text>
               </TouchableOpacity>
             </View>
           }
           style={styles.flatList}
         />
         {session?.sessionCreator === username && (
-          <Button
+          <NeonButton
             title="START VOTING"
             onPress={handleStartVoting}
-            containerStyle={styles.buttonContainer}
-            buttonStyle={styles.startButton}
-            titleStyle={styles.titleStyle}
+            buttonStyle={{
+              margin: 10,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: 'rgba(52, 52, 52, 0.0)',
+              padding: 1,
+              width: '80%',
+              borderWidth: 1,
+              borderRadius: 13,
+              borderColor: 'white',
+              shadowColor: '#25f57c',
+              shadowOffset: {width: 0, height: 0},
+              shadowOpacity: 0.5,
+              shadowRadius: 10,
+              elevation: 6, // Elevation for Android
+            }}
+            textStyle={{
+              color: '#ffffff',
+              fontSize: 26,
+              textAlign: 'center',
+              textShadowColor: '#25f57c',
+              textShadowOffset: {width: 0, height: 0},
+              textShadowRadius: 10,
+              fontFamily: 'beon',
+              fontWeight: 'bold',
+            }}
           />
         )}
-        <Button
+        {/* <Button
           title="LEAVE"
           onPress={handleBackToSession}
           containerStyle={styles.buttonContainer}
           buttonStyle={styles.leaveButton}
           titleStyle={styles.titleStyle}
+        /> */}
+        <NeonButton
+          title="ABANDON SESSION"
+          onPress={handleBackToSession}
+          buttonStyle={{
+            margin: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(52, 52, 52, 0.0)',
+            padding: 1,
+            width: '80%',
+            borderWidth: 1,
+            borderRadius: 13,
+            borderColor: 'white',
+            shadowColor: 'red',
+            shadowOffset: {width: 0, height: 0},
+            shadowOpacity: 0.5,
+            shadowRadius: 10,
+            elevation: 6, // Elevation for Android
+          }}
+          textStyle={{
+            color: '#ffffff',
+            fontSize: 26,
+            textAlign: 'center',
+            textShadowColor: 'red',
+            textShadowOffset: {width: 0, height: 0},
+            textShadowRadius: 10,
+            fontFamily: 'beon',
+            fontWeight: 'bold',
+          }}
         />
       </View>
     </Background>
@@ -189,9 +339,10 @@ const styles = StyleSheet.create({
   },
   listItem: {
     padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    backgroundColor: 'white',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#ccc',
+    alignItems: 'flex-start',
+    // backgroundColor: 'white',
   },
   listItemText: {
     fontSize: 20,
@@ -212,7 +363,8 @@ const styles = StyleSheet.create({
     fontFamily: 'rubikItalic',
   },
   text: {
-    fontFamily: 'rubik',
+    fontFamily: 'beon',
+    color: 'white',
     fontSize: 18,
   },
   button: {

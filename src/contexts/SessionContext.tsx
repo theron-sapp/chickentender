@@ -21,6 +21,7 @@ interface Session {
   votes: any[];
   results?: any;
   votingComplete: boolean;
+  winningRestaurant: Restaurant;
 }
 
 interface ISessionContext {

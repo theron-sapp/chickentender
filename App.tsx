@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 // App.tsx or Navigation.tsx
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -10,13 +9,37 @@ import ResultsScreen from './src/screens/ResultsScreen';
 import {UserProvider} from './src/contexts/UserContext';
 import {SessionProvider} from './src/contexts/SessionContext';
 // import HeaderComponent from './src/reusables/HeaderComponent';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import * as Font from 'expo-font';
 import {UsersArrayProvider} from './src/contexts/UsersArrayContext';
-import {View} from 'react-native';
+import {ActivityIndicator} from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
+const loadFonts = async () => {
+  await Font.loadAsync({
+    rubik: require('./src/assets/fonts/Rubik-Regular.ttf'),
+    rubikBold: require('./src/assets/fonts/Rubik-Bold.ttf'),
+    rubikItalic: require('./src/assets/fonts/Rubik-Italic.ttf'),
+    sansNeon: require('./src/assets/fonts/NeonSans.ttf'),
+    beon: require('./src/assets/fonts/Beon-Regular.ttf'),
+    // place holder for more fonts
+  });
+};
+
 const App: React.FC = () => {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    loadFonts()
+      .then(() => setFontsLoaded(true))
+      .catch(error => console.error('Error loading fonts', error));
+  }, []);
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
   return (
     <UserProvider>
       <UsersArrayProvider>
@@ -30,34 +53,39 @@ const App: React.FC = () => {
               <Stack.Screen
                 name="Session"
                 component={SessionScreen}
-                options={{
-                  title: 'Chicken Tender',
-                  headerLeft: () => <View />,
-                }}
+                options={{headerShown: false}}
+                // options={{
+                //   title: 'Chicken Tender',
+                //   headerLeft: () => <View />,
+                // }}
               />
               <Stack.Screen
                 name="Lobby"
                 component={LobbyScreen}
-                options={{
-                  title: 'Chicken Tender',
-                  headerLeft: () => <View />,
-                }}
+                options={{headerShown: false}}
+
+                // options={{
+                //   title: 'Chicken Tender',
+                //   headerLeft: () => <View />,
+                // }}
               />
               <Stack.Screen
                 name="Voting"
                 component={VotingScreen}
-                options={{
-                  title: 'Vote!',
-                  headerLeft: () => <View />,
-                }}
+                options={{headerShown: false}}
+                // options={{
+                //   title: 'Vote!',
+                //   headerLeft: () => <View />,
+                // }}
               />
               <Stack.Screen
                 name="Results"
                 component={ResultsScreen}
-                options={{
-                  title: 'Chicken Tender',
-                  headerLeft: () => <View />,
-                }}
+                options={{headerShown: false}}
+                // options={{
+                //   title: 'Chicken Tender',
+                //   headerLeft: () => <View />,
+                // }}
               />
             </Stack.Navigator>
           </NavigationContainer>

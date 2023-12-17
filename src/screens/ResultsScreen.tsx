@@ -1,19 +1,13 @@
+/* eslint-disable react-native/no-inline-styles */
 // chickentender/src/screens/ResultsScreen.tsx
 import React, {useRef, useCallback, useEffect, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Button,
-  ActivityIndicator,
-} from 'react-native';
+import {View, Text, StyleSheet, Image, Button} from 'react-native';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {ResultsScreenNavigationProp} from '../types/NavigationStackTypes';
 import {getSession, getWinningRestaurant} from '../services/apiService';
 import Background from '../reusables/Background';
-import * as Font from 'expo-font';
+import NeonSign from '../reusables/NeonSign';
 
 const ConfettiCannon: any = require('react-native-confetti-cannon').default;
 
@@ -26,30 +20,11 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   const {setUsername} = useUser();
   const confettiRef = useRef<any>(null);
   const [isFetching, setIsFetching] = useState(true);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [, setSessionCodeInput] = useState('');
-
-  useEffect(() => {
-    const loadFonts = async () => {
-      try {
-        await Font.loadAsync({
-          rubik: require('../assets/fonts/Rubik-Regular.ttf'),
-          rubikBold: require('../assets/fonts/Rubik-Bold.ttf'),
-          rubikItalic: require('../assets/fonts/Rubik-Italic.ttf'),
-        });
-        setFontsLoaded(true);
-      } catch (error) {
-        console.error('Error loading fonts', error);
-      }
-    };
-
-    loadFonts();
-  }, []);
 
   const fetchResults = useCallback(async () => {
     if (session?.code && isFetching) {
       const sessionUpdate = await getSession(session.code);
-      console.log(`Session code: ${session?.code} theron`);
 
       if (sessionUpdate?.votingCompleted) {
         try {
@@ -82,10 +57,6 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
     navigation.navigate('Session');
   };
 
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
   const hasResults = session?.results && session.results.winner;
 
   return (
@@ -98,7 +69,23 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
             ref={confettiRef}
           />
         )}
-        <Text style={styles.title}>Results</Text>
+        {/* <Text style={styles.title}>Results</Text> */}
+        <NeonSign
+          text="RESULTS"
+          textStyle={{
+            color: '#ffffff',
+            fontSize: 68,
+            textAlign: 'center',
+            shadowColor: '#ff4aa3',
+            textShadowColor: '#ff4aa3',
+            textShadowOffset: {width: 0, height: 0},
+            textShadowRadius: 2,
+            shadowOpacity: 1,
+            shadowRadius: 30,
+            fontFamily: 'beon',
+            fontWeight: 'bold',
+          }}
+        />
         {hasResults ? (
           <View style={styles.restaurantCard}>
             <Image
@@ -108,12 +95,12 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
             <Text style={styles.restaurantName}>
               {session.results.winner.name}
             </Text>
-            <Text>{session.results.winner.address}</Text>
+            <Text style={styles.text}>{session.results.winner.address}</Text>
           </View>
         ) : (
-          <Text>Waiting for results...</Text>
+          <Text style={styles.text}>Waiting for others to finish</Text>
         )}
-        <Button title="Back to Session" onPress={handleBackToSession} />
+        <Button title="Back to Homepage" onPress={handleBackToSession} />
       </View>
     </Background>
   );
@@ -130,7 +117,9 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 48,
+    fontFamily: 'beon',
+    color: 'white',
     fontWeight: 'bold',
     marginBottom: 20,
   },
@@ -138,8 +127,12 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 20,
     borderRadius: 10,
-    backgroundColor: '#fff',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#636262',
+    justifyContent: 'center',
+    backgroundColor: '#383838',
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -147,9 +140,24 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   restaurantName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 10,
+    fontSize: 32,
+    textAlign: 'center',
+    paddingTop: 10,
+    fontFamily: 'beon',
+    color: 'white',
+    shadowColor: 'yellow',
+    shadowRadius: 4,
+    shadowOpacity: 1,
+  },
+  text: {
+    fontSize: 16,
+    textAlign: 'center',
+    paddingTop: 10,
+    fontFamily: 'beon',
+    color: 'white',
+    shadowColor: 'black',
+    shadowRadius: 4,
+    shadowOpacity: 1,
   },
 });
 

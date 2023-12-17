@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-native/no-inline-styles */
 // SessionScreen.tsx
 import React, {useEffect, useState} from 'react';
@@ -7,12 +8,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  Image,
   Text,
   TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  // Animated,
 } from 'react-native';
-import {Button} from 'react-native-elements';
-import LinearGradient from 'react-native-linear-gradient';
 import {useSession} from '../contexts/SessionContext';
 import * as Location from 'expo-location'; // Ensure to install expo-location
 import {createSession, joinSession} from '../services/apiService';
@@ -21,10 +22,10 @@ import {useUser} from '../contexts/UserContext';
 import {useUsersArray} from '../contexts/UsersArrayContext';
 import {initializeSocket} from '../services/socketService';
 import {useFocusEffect} from '@react-navigation/native';
-import * as Font from 'expo-font';
 import Background from '../reusables/Background';
 import Slider from '@react-native-community/slider';
-import {CodeField, Cursor} from 'react-native-confirmation-code-field';
+import NeonButton from '../reusables/NeonButton';
+import NeonSign from '../reusables/NeonSign';
 
 const debug = false;
 
@@ -40,6 +41,14 @@ const PriceLevelSelector: React.FC<PriceLevelSelectorProps> = ({
   maxPriceLevel,
   setMaxPriceLevel,
 }) => {
+  // Emoji mapping for each price level
+  const priceLevelEmojis: {[key: string]: string} = {
+    '1': '💵',
+    '2': '💸',
+    '3': '💰',
+    '4': '💯',
+  };
+
   return (
     <View style={styles.priceLevelContainer}>
       {[1, 2, 3, 4].map(level => (
@@ -55,11 +64,17 @@ const PriceLevelSelector: React.FC<PriceLevelSelectorProps> = ({
                   : '#e0e0e0', // Inactive color
             },
           ]}>
-          <Text style={styles.priceLevelText}>$</Text>
+          <Text style={styles.priceLevelText}>
+            {priceLevelEmojis[level.toString()]}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
   );
+};
+
+const neonSignContainerStyle = {
+  marginBottom: 10,
 };
 
 const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
@@ -70,38 +85,17 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   const [state, setState] = useState('');
   const [sessionCodeInput, setSessionCodeInput] = useState('');
   const [view, setView] = useState<
-    'default' | 'join' | 'create' | 'manual' | 'location'
+    'default' | 'join' | 'create' | 'options' | 'location'
   >('default');
-  const [fontsLoaded, setFontsLoaded] = useState(false);
   const [maxPriceLevel, setMaxPriceLevel] = useState<number>(1);
   const [radius, setRadius] = useState<number>(5);
-
-  useEffect(() => {
-    const loadFonts = async () => {
-      try {
-        await Font.loadAsync({
-          rubik: require('../assets/fonts/Rubik-Regular.ttf'),
-          rubikBold: require('../assets/fonts/Rubik-Bold.ttf'),
-          rubikItalic: require('../assets/fonts/Rubik-Italic.ttf'),
-        });
-        setFontsLoaded(true);
-      } catch (error) {
-        console.error('Error loading fonts', error);
-      }
-    };
-
-    loadFonts();
-  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
       setView('default');
+      setSessionCodeInput('');
     }, []),
   );
-
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
 
   const handleJoinSession = async () => {
     if (debug) {
@@ -111,8 +105,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       try {
         const session = await joinSession(sessionCodeInput, username);
         setSession(session);
-        // console.log(`Session Details: ${JSON.stringify(session, null, 2)}`);
-        initializeSocket();
+        // initializeSocket();
         navigation.navigate('Lobby');
       } catch (error) {
         Alert.alert('Error', 'Failed to join session. Please try again.');
@@ -143,7 +136,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
         maxPriceLevel: maxPriceLevel,
       });
       setSession(session);
-      initializeSocket();
+      // initializeSocket();
       navigation.navigate('Lobby');
     } catch (error) {
       console.log(`Could not create session: ${error}`);
@@ -172,189 +165,398 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
 
   return (
     <Background>
-      <View style={styles.container}>
-        {view === 'default' && (
-          <>
-            <View style={styles.imageContainer}>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={50} // You can adjust this value as needed
+      >
+        <View style={styles.container}>
+          <View style={styles.container}>
+            <NeonSign
+              text="DINER"
+              containerStyle={neonSignContainerStyle}
+              textStyle={{
+                color: '#ffffff',
+                fontSize: 68,
+                textAlign: 'center',
+                shadowColor: '#ff4aa3',
+                textShadowColor: '#ff4aa3',
+                textShadowOffset: {width: 0, height: 0},
+                textShadowRadius: 2,
+                shadowOpacity: 1,
+                shadowRadius: 30,
+                fontFamily: 'beon',
+                fontWeight: 'bold',
+              }}
+            />
+            <NeonSign
+              text="FINDR"
+              containerStyle={neonSignContainerStyle}
+              textStyle={{
+                color: '#ffffff',
+                fontSize: 68,
+                shadowRadius: 30,
+                shadowColor: '#ff4aa3',
+                shadowOpacity: 1,
+                textAlign: 'center',
+                textShadowColor: '#ff4aa3',
+                textShadowOffset: {width: 0, height: 0},
+                textShadowRadius: 2,
+                fontFamily: 'beon',
+                fontWeight: 'bold',
+              }}
+            />
+          </View>
+          {view === 'default' && (
+            <>
+              {/* <View style={styles.imageContainer}>
               <Image
-                source={require('../assets/images/chickentender.png')}
+                source={require('../assets/images/Diner-Icon-NoBackground.png')}
                 style={styles.imagelogo}
                 resizeMode="contain"
               />
-              <Text style={styles.logoText}>TNDR</Text>
-            </View>
-            <Button
-              title="JOIN A VOTE"
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              onPress={() => setView('join')}
-              ViewComponent={LinearGradient}
-              linearGradientProps={{
-                colors: ['#4e7d66', '#a6b599'],
-                start: {x: 1, y: 0},
-                end: {x: 0, y: 0},
-              }}
-            />
-            <Button
-              title="START A VOTE"
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              onPress={() => setView('create')}
-              ViewComponent={LinearGradient}
-              linearGradientProps={{
-                colors: ['#9d0303', '#e7941e'],
-                start: {x: 0, y: 0},
-                end: {x: 1, y: 0},
-              }}
-            />
-          </>
-        )}
+            </View> */}
+              <NeonButton
+                title="JOIN A SESSION"
+                onPress={() => setView('join')}
+                buttonStyle={{
+                  margin: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: '#0307fc',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6, // Elevation for Android
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: '#0307fc',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
 
-        {view === 'join' && (
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={username}
-              onChangeText={handleOnChangeText}
-              autoCapitalize="none"
-            />
-            <CodeField
-              value={sessionCodeInput}
-              onChangeText={setSessionCodeInput}
-              cellCount={6}
-              rootStyle={styles.codeFieldRoot}
-              keyboardType="number-pad"
-              textContentType="oneTimeCode"
-              renderCell={({index, symbol, isFocused}) => (
-                <Text
-                  key={index}
-                  style={[styles.cell, isFocused && styles.focusCell]}>
-                  {symbol || (isFocused ? <Cursor /> : null)}
-                </Text>
-              )}
-            />
-            <Button
-              title="JOIN VOTE"
-              onPress={handleJoinSession}
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient}
-              linearGradientProps={{
-                colors: ['#4e7d66', '#a6b599'],
-                start: {x: 1, y: 0},
-                end: {x: 0, y: 0},
-              }}
-            />
-            <Button
-              title="GO BACK"
-              onPress={() => setView('default')}
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-            />
-          </>
-        )}
+              <NeonButton
+                title="START A SESSION"
+                onPress={() => setView('create')}
+                buttonStyle={{
+                  margin: 10,
+                  marginBottom: 50,
+                  // marginBottom: '7%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: '#3adb00',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: '#3adb00',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+            </>
+          )}
+          {view === 'join' && (
+            <>
+              <TextInput
+                style={{...styles.input, marginTop: 20}}
+                placeholder="Name"
+                value={username}
+                onChangeText={handleOnChangeText}
+                autoCapitalize="none"
+                keyboardType="default"
+                returnKeyType="done"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Session Code"
+                value={sessionCodeInput}
+                onChangeText={setSessionCodeInput}
+                autoCapitalize="none"
+                keyboardType="number-pad"
+                returnKeyType="done"
+              />
+              <NeonButton
+                title="JOIN SESSION"
+                onPress={handleJoinSession}
+                buttonStyle={{
+                  margin: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: '#0307fc',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: '#0307fc',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+              <NeonButton
+                title="GO BACK"
+                onPress={() => setView('default')}
+                buttonStyle={{
+                  margin: 10,
+                  marginBottom: 50,
+                  // marginBottom: '7%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: 'black',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: 'black',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+            </>
+          )}
+          {view === 'create' && (
+            <>
+              <TextInput
+                style={{...styles.input, marginTop: 20}}
+                placeholder="Name"
+                value={username}
+                onChangeText={handleOnChangeText}
+                autoCapitalize="none"
+                keyboardType="default"
+                returnKeyType="done"
+              />
+              <NeonButton
+                title="CONTINUE"
+                onPress={() => {
+                  if (username.trim().length > 0) {
+                    setView('options');
+                  } else {
+                    Alert.alert(
+                      'Username Required',
+                      'Please enter a username to proceed.',
+                    );
+                  }
+                }}
+                buttonStyle={{
+                  margin: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: '#3adb00',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: '#3adb00',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+              <NeonButton
+                title="GO BACK"
+                onPress={() => setView('default')}
+                buttonStyle={{
+                  margin: 10,
+                  marginBottom: 50,
+                  // marginBottom: '7%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: 'black',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: 'black',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+            </>
+          )}
+          {view === 'options' && (
+            <>
+              <Text style={styles.priceLevelHeading}>Select Price Level:</Text>
+              <PriceLevelSelector
+                maxPriceLevel={maxPriceLevel}
+                setMaxPriceLevel={setMaxPriceLevel}
+              />
+              <Text style={styles.priceLevelSubheader}>
+                From least to most expensive
+              </Text>
+              <Slider
+                style={{
+                  ...styles.radiusLabel,
+                  shadowColor: '#3adb00',
+                  shadowRadius: 10,
+                  shadowOpacity: 1,
+                }}
+                minimumValue={1}
+                maximumValue={25}
+                step={1}
+                value={radius}
+                onValueChange={value => setRadius(value)}
+                minimumTrackTintColor="white"
+                maximumTrackTintColor="#000000"
+              />
+              <Text style={styles.radiusLabel}>
+                Search Radius: {radius.toFixed(0)} miles
+              </Text>
 
-        {view === 'create' && (
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={username}
-              onChangeText={handleOnChangeText}
-              autoCapitalize="none"
-            />
-            <Text style={styles.priceLevelHeading}>Select Price Level:</Text>
-            <PriceLevelSelector
-              maxPriceLevel={maxPriceLevel}
-              setMaxPriceLevel={setMaxPriceLevel}
-            />
-            <Slider
-              style={styles.radiusLabel}
-              minimumValue={1}
-              maximumValue={25}
-              step={1}
-              value={radius}
-              onValueChange={value => setRadius(value)}
-              minimumTrackTintColor="#4caf50"
-              maximumTrackTintColor="#000000"
-            />
-            <Text style={styles.radiusLabel}>
-              Radius: {radius.toFixed(0)} miles
-            </Text>
-
-            <Button
-              title="Use Current Location"
-              onPress={requestAndUseLocation}
-              buttonStyle={styles.useLocationButton}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient}
-              linearGradientProps={{
-                colors: ['#835501', '#3b0101'],
-                start: {x: 1, y: 0},
-                end: {x: 0, y: 0},
-              }}
-            />
-            <Button
-              title="GO BACK"
-              onPress={() => setView('default')}
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-            />
-          </>
-        )}
-        {view === 'manual' && (
-          <>
-            <TextInput
-              style={styles.input}
-              placeholder="Name"
-              value={username}
-              onChangeText={handleOnChangeText}
-              autoCapitalize="none"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter City"
-              value={city}
-              onChangeText={setCity}
-              autoCapitalize="words"
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Enter State (e.g. GA)"
-              value={state}
-              onChangeText={setState}
-              autoCapitalize="characters"
-            />
-            <Button
-              title="START VOTE"
-              onPress={() => handleCreateSession()}
-              buttonStyle={styles.createSessionButton}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-              ViewComponent={LinearGradient}
-              linearGradientProps={{
-                colors: ['#5dbea3', '#075640'],
-                start: {x: 1, y: 0},
-                end: {x: 0, y: 0},
-              }}
-            />
-            <Button
-              title="GO BACK"
-              onPress={() => setView('create')}
-              buttonStyle={styles.button}
-              containerStyle={styles.buttonContainer}
-              titleStyle={styles.titleStyle}
-            />
-          </>
-        )}
-      </View>
+              {/* <Button
+                title="Use Current Location"
+                onPress={requestAndUseLocation}
+                buttonStyle={styles.useLocationButton}
+                containerStyle={styles.buttonContainer}
+                titleStyle={styles.titleStyle}
+                ViewComponent={LinearGradient}
+                linearGradientProps={{
+                  colors: ['#835501', '#3b0101'],
+                  start: {x: 1, y: 0},
+                  end: {x: 0, y: 0},
+                }}
+              /> */}
+              <NeonButton
+                title="START SESSION"
+                onPress={requestAndUseLocation}
+                buttonStyle={{
+                  margin: 10,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: '#3adb00',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: '#3adb00',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+              <NeonButton
+                title="GO BACK"
+                onPress={() => setView('default')}
+                buttonStyle={{
+                  margin: 10,
+                  marginBottom: 50,
+                  // marginBottom: '7%',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(52, 52, 52, 0.0)',
+                  padding: 1,
+                  width: '80%',
+                  borderWidth: 1,
+                  borderRadius: 13,
+                  borderColor: 'white',
+                  shadowColor: 'black',
+                  shadowOffset: {width: 0, height: 0},
+                  shadowOpacity: 0.5,
+                  shadowRadius: 10,
+                  elevation: 6,
+                }}
+                textStyle={{
+                  color: '#ffffff',
+                  fontSize: 26,
+                  textAlign: 'center',
+                  textShadowColor: 'black',
+                  textShadowOffset: {width: 0, height: 0},
+                  textShadowRadius: 10,
+                  fontFamily: 'beon',
+                  fontWeight: 'bold',
+                }}
+              />
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
     </Background>
   );
 };
@@ -368,12 +570,12 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flex: 0.5,
-    padding: 20,
-    width: '60%',
-    height: '60%',
+    padding: 0,
+    width: '90%',
+    height: '90%',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#000125',
     shadowOffset: {
       width: 4,
       height: 10,
@@ -385,8 +587,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   imagelogo: {
-    width: '90%',
-    height: '90%',
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
   },
   logoText: {
@@ -408,16 +610,29 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   input: {
-    width: '90%',
-    padding: 15,
+    textAlign: 'center',
+    width: '80%',
+    padding: 10,
     fontSize: 18,
-    fontFamily: 'rubik',
+    fontWeight: '500',
+    fontFamily: 'beon',
+    color: 'white',
+    textShadowColor: 'black',
+    textShadowRadius: 1,
+    textDecorationColor: '#0307fc',
     marginVertical: 10,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: 'rgba(125, 124, 124, 1)',
     borderRadius: 5,
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(125, 124, 124, 0.88)', // Semi-transparent white
+    // Adding a subtle shadow for depth
+    shadowColor: 'black',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 1,
   },
+
   button: {
     backgroundColor: 'black',
     borderWidth: 0,
@@ -463,23 +678,32 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   priceLevel: {
-    padding: 10,
+    padding: 6,
     borderRadius: 5,
     marginHorizontal: 5,
   },
   priceLevelText: {
-    fontSize: 20,
+    fontSize: 14,
     color: 'white',
   },
   priceLevelHeading: {
-    fontFamily: 'rubikItalic',
+    fontFamily: 'beon',
     fontSize: 18,
+    color: 'white',
+    textAlign: 'center',
+    marginVertical: 5,
+  },
+  priceLevelSubheader: {
+    fontFamily: 'beon',
+    fontSize: 12,
+    color: 'white',
     textAlign: 'center',
     marginVertical: 5,
   },
   radiusLabel: {
-    fontFamily: 'rubik',
-    fontSize: 14,
+    fontFamily: 'beon',
+    fontSize: 18,
+    color: 'white',
     textAlign: 'center',
     marginVertical: 5,
     width: '80%',

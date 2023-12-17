@@ -8,7 +8,7 @@ interface BackgroundProviderProps {
 const Background: React.FC<BackgroundProviderProps> = ({children}) => {
   return (
     <ImageBackground
-      source={require('../assets/images/chickenfeetcanvas.png')}
+      source={require('../assets/images/Diner-Background-Image01.png')}
       style={styles.background}>
       <SafeAreaView style={styles.container}>{children}</SafeAreaView>
     </ImageBackground>
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
     width: '100%',
-    height: '120%',
+    height: '100%',
   },
   container: {
     flex: 1,
