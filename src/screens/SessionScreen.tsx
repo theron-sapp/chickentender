@@ -173,14 +173,14 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
         <View style={styles.container}>
           <View style={styles.container}>
             <NeonSign
-              text="Food"
+              text="Feast"
               containerStyle={neonSignContainerStyle}
               textStyle={{
                 color: '#ffffff',
                 fontSize: 76,
                 textAlign: 'center',
-                shadowColor: '#df007c',
-                textShadowColor: '#df007c',
+                shadowColor: '#36fff4',
+                textShadowColor: '#36fff4',
                 textShadowOffset: {width: 0, height: 0},
                 textShadowRadius: 2,
                 padding: 1,
@@ -199,10 +199,10 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
                 color: '#ffffff',
                 fontSize: 68,
                 shadowRadius: 30,
-                shadowColor: '#00bb62',
+                shadowColor: '#8ef372',
                 shadowOpacity: 1,
                 textAlign: 'center',
-                textShadowColor: '#00bb62',
+                textShadowColor: '#8ef372',
                 textShadowOffset: {width: 0, height: 0},
                 textShadowRadius: 2,
                 padding: 1,
