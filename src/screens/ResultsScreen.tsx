@@ -100,7 +100,9 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
         ) : (
           <Text style={styles.text}>Waiting for others to finish</Text>
         )}
-        <Button title="Back to Homepage" onPress={handleBackToSession} />
+        {hasResults && (
+          <Button title="Back to Homepage" onPress={handleBackToSession} />
+        )}
       </View>
     </Background>
   );

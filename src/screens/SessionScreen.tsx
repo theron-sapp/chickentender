@@ -26,6 +26,8 @@ import Background from '../reusables/Background';
 import Slider from '@react-native-community/slider';
 import NeonButton from '../reusables/NeonButton';
 import NeonSign from '../reusables/NeonSign';
+import InstructionPopup from '../reusables/InstructionPopup';
+// import InstructionPopup from '../reusables/InstructionPopup';
 
 const debug = false;
 
@@ -41,13 +43,8 @@ const PriceLevelSelector: React.FC<PriceLevelSelectorProps> = ({
   maxPriceLevel,
   setMaxPriceLevel,
 }) => {
-  // Emoji mapping for each price level
-  const priceLevelEmojis: {[key: string]: string} = {
-    '1': '💵',
-    '2': '💸',
-    '3': '💰',
-    '4': '💯',
-  };
+  // Function to return dollar signs for each price level
+  const getPriceLevelSigns = (level: number): string => '$'.repeat(level);
 
   return (
     <View style={styles.priceLevelContainer}>
@@ -64,9 +61,7 @@ const PriceLevelSelector: React.FC<PriceLevelSelectorProps> = ({
                   : '#e0e0e0', // Inactive color
             },
           ]}>
-          <Text style={styles.priceLevelText}>
-            {priceLevelEmojis[level.toString()]}
-          </Text>
+          <Text style={styles.priceLevelText}>{getPriceLevelSigns(level)}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -89,6 +84,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   >('default');
   const [maxPriceLevel, setMaxPriceLevel] = useState<number>(1);
   const [radius, setRadius] = useState<number>(5);
+  const [showPopup, setShowPopup] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -101,7 +97,13 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
     if (debug) {
       console.log('Trying to join session.');
     }
-    if (sessionCodeInput.trim().length > 0 && username.trim().length > 0) {
+    const usernameRegex = /^[a-zA-Z]+$/;
+    if (
+      sessionCodeInput.trim().length > 0 &&
+      username.trim().length > 0 &&
+      username.trim().length <= 20 &&
+      usernameRegex.test(username)
+    ) {
       try {
         const session = await joinSession(sessionCodeInput, username);
         setSession(session);
@@ -113,9 +115,13 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
     } else {
       Alert.alert(
         'Invalid Input',
-        'Please enter a session code and a username.',
+        'Please enter a session code and the username must consist of letters only and cannot be empty.',
       );
     }
+  };
+
+  const handleNeedHelp = async () => {
+    setShowPopup(true);
   };
 
   const handleCreateSession = async (latitude?: number, longitude?: number) => {
@@ -170,6 +176,20 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={50} // You can adjust this value as needed
       >
+        {/* "Need Help?" Button */}
+        <TouchableOpacity onPress={handleNeedHelp}>
+          <Text style={styles.text}>Instructions</Text>
+        </TouchableOpacity>
+
+        {/* InstructionPopup Component */}
+        <InstructionPopup
+          isVisible={showPopup}
+          onClose={() => setShowPopup(false)}
+          content1="Join Session: Get the session code from the session creator and then enter the session."
+          content2="Create Session: Enter your name and continue, select a price level (2 is like $20), select a radius, and then start the session."
+          content3="Lobby: Once you join or start a session, you will enter the lobby. Share the Session code with your friends. The session creator can start the voting when everyone has joined."
+          content4="Voting: Swipe right for restaurants that sound good and left for ones that don't!"
+        />
         <View style={styles.container}>
           <View style={styles.container}>
             <NeonSign
@@ -290,6 +310,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               <TextInput
                 style={{...styles.input, marginTop: 20}}
                 placeholder="Name"
+                placeholderTextColor="white"
                 value={username}
                 onChangeText={handleOnChangeText}
                 autoCapitalize="none"
@@ -299,6 +320,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               <TextInput
                 style={styles.input}
                 placeholder="Session Code"
+                placeholderTextColor="white"
                 value={sessionCodeInput}
                 onChangeText={setSessionCodeInput}
                 autoCapitalize="none"
@@ -374,6 +396,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               <TextInput
                 style={{...styles.input, marginTop: 20}}
                 placeholder="Name"
+                placeholderTextColor="white"
                 value={username}
                 onChangeText={handleOnChangeText}
                 autoCapitalize="none"
@@ -383,12 +406,20 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               <NeonButton
                 title="CONTINUE"
                 onPress={() => {
-                  if (username.trim().length > 0) {
+                  // Define the regex for a valid username
+                  const usernameRegex = /^[a-zA-Z]+$/;
+
+                  if (
+                    username.trim().length > 0 &&
+                    username.trim().length <= 20 &&
+                    usernameRegex.test(username)
+                  ) {
                     setView('options');
                   } else {
+                    // Modify the alert message to be more specific
                     Alert.alert(
-                      'Username Required',
-                      'Please enter a username to proceed.',
+                      'Invalid Username',
+                      'Username must consist of letters only and cannot be empty. 20 Characters max.',
                     );
                   }
                 }}
@@ -682,12 +713,12 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   priceLevel: {
-    padding: 6,
+    padding: 14,
     borderRadius: 5,
-    marginHorizontal: 5,
+    marginHorizontal: 2,
   },
   priceLevelText: {
-    fontSize: 14,
+    fontSize: 20,
     color: 'white',
   },
   priceLevelHeading: {
@@ -735,6 +766,12 @@ const styles = StyleSheet.create({
     borderColor: '#0000ff',
     textAlignVertical: 'bottom',
     verticalAlign: 'bottom',
+  },
+  text: {
+    textDecorationLine: 'underline',
+    color: 'white',
+    fontSize: 18,
+    margin: 20,
   },
 });
 

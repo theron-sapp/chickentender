@@ -396,6 +396,7 @@ const styles = StyleSheet.create({
   },
   restaurantName: {
     fontSize: 28,
+    margin: 3,
     textAlign: 'center',
     paddingTop: 10,
     fontFamily: 'beon',
