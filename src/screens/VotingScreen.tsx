@@ -1,7 +1,14 @@
 /* eslint-disable react-native/no-inline-styles */
 // VotingScreen.tsx
 import React, {useState, useCallback, useEffect} from 'react';
-import {View, Image, Text, StyleSheet, Alert} from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
@@ -15,6 +22,7 @@ import {VotingScreenNavigationProp} from '../types/NavigationStackTypes';
 import Background from '../reusables/Background';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NeonButton from '../reusables/NeonButton';
+import InstructionSlider from '../reusables/InstructionSlider';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
@@ -59,6 +67,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
   const [shouldNavigate, setShouldNavigate] = useState(false); // New state
   const [, setSessionCodeInput] = useState('');
+  const [showInstructionSlider, setShowInstructionSlider] = useState(false);
 
   const completeVoting = useCallback(async () => {
     if (!session) {
@@ -171,6 +180,11 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   return (
     <Background>
       <View style={styles.container}>
+        <TouchableOpacity
+          onPress={() => setShowInstructionSlider(true)}
+          style={styles.helpButton}>
+          <Text style={styles.helpButtonText}>i</Text>
+        </TouchableOpacity>
         <Swiper
           // verticalSwipe={false}
           cards={session.restaurants}
@@ -320,6 +334,14 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
             fontWeight: 'bold',
           }}
         />
+        {showInstructionSlider && (
+          <View style={styles.instructionSliderOverlay}>
+            <InstructionSlider
+              screen="VoteLike"
+              onClose={() => setShowInstructionSlider(false)}
+            />
+          </View>
+        )}
       </View>
     </Background>
   );
@@ -404,6 +426,34 @@ const styles = StyleSheet.create({
     shadowColor: 'yellow',
     shadowRadius: 4,
     shadowOpacity: 1,
+  },
+  helpButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  helpButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  instructionSliderOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    zIndex: 1000,
   },
 });
 

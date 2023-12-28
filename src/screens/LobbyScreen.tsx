@@ -26,6 +26,7 @@ import {
 } from '../services/apiService';
 import NeonSign from '../reusables/NeonSign';
 import NeonButton from '../reusables/NeonButton';
+import InstructionSlider from '../reusables/InstructionSlider';
 
 const shadowColors = [
   '#c20404',
@@ -54,6 +55,7 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
   const {username, setUsername} = useUser();
   const [error, setError] = useState<string | null>(null);
   const [, setSessionCodeInput] = useState('');
+  const [showInstructionSlider, setShowInstructionSlider] = useState(false);
 
   useEffect(() => {
     // Font loading logic
@@ -164,6 +166,11 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
 
   return (
     <Background>
+      <TouchableOpacity
+        onPress={() => setShowInstructionSlider(true)}
+        style={styles.helpButton}>
+        <Text style={styles.helpButtonText}>i</Text>
+      </TouchableOpacity>
       <View style={styles.container}>
         <FlatList
           data={session?.users}
@@ -287,6 +294,14 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
             fontWeight: 'bold',
           }}
         />
+        {showInstructionSlider && (
+          <View style={styles.instructionSliderOverlay}>
+            <InstructionSlider
+              screen="Lobby"
+              onClose={() => setShowInstructionSlider(false)}
+            />
+          </View>
+        )}
       </View>
     </Background>
   );
@@ -307,6 +322,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    marginTop: 18,
   },
   title: {
     fontSize: 24,
@@ -372,6 +388,34 @@ const styles = StyleSheet.create({
   usersList: {
     width: '100%',
     // Add any additional styling needed for the users list
+  },
+  helpButton: {
+    position: 'absolute',
+    right: 20,
+    top: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  helpButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  instructionSliderOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    zIndex: 1000,
   },
 });
 

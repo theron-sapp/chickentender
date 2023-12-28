@@ -12,7 +12,9 @@ import {SessionProvider} from './src/contexts/SessionContext';
 import React, {useEffect, useState} from 'react';
 import * as Font from 'expo-font';
 import {UsersArrayProvider} from './src/contexts/UsersArrayContext';
+import InstructionSlider from './src/reusables/InstructionSlider'; // Update this path
 import {ActivityIndicator} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,15 +33,40 @@ const loadFonts = async () => {
 
 const App: React.FC = () => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true); // New state for showing instructions
 
   useEffect(() => {
     loadFonts()
       .then(() => setFontsLoaded(true))
       .catch(error => console.error('Error loading fonts', error));
+
+    // Check AsyncStorage to see if instructions should be shown
+    const checkInstructions = async () => {
+      try {
+        const showInstr = await AsyncStorage.getItem('@ShowInstructions');
+        if (showInstr !== null && showInstr === 'false') {
+          setShowInstructions(false);
+        }
+      } catch (e) {
+        // Error reading value
+        console.error('Error reading AsyncStorage:', e);
+      }
+    };
+
+    checkInstructions();
   }, []);
 
   if (!fontsLoaded) {
     return <ActivityIndicator size="large" color="#0000ff" />;
+  }
+
+  if (showInstructions) {
+    return (
+      <InstructionSlider
+        allSlides={true}
+        onClose={() => setShowInstructions(false)}
+      />
+    );
   }
 
   return (

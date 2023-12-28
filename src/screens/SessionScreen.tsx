@@ -27,6 +27,7 @@ import Slider from '@react-native-community/slider';
 import NeonButton from '../reusables/NeonButton';
 import NeonSign from '../reusables/NeonSign';
 import InstructionPopup from '../reusables/InstructionPopup';
+import InstructionSlider from '../reusables/InstructionSlider';
 // import InstructionPopup from '../reusables/InstructionPopup';
 
 const debug = false;
@@ -85,6 +86,7 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
   const [maxPriceLevel, setMaxPriceLevel] = useState<number>(1);
   const [radius, setRadius] = useState<number>(5);
   const [showPopup, setShowPopup] = useState(false);
+  const [showInstructionSlider, setShowInstructionSlider] = useState(false);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -176,20 +178,25 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={50} // You can adjust this value as needed
       >
-        {/* "Need Help?" Button */}
-        <TouchableOpacity onPress={handleNeedHelp}>
-          <Text style={styles.text}>Instructions</Text>
+        <TouchableOpacity
+          onPress={() => setShowInstructionSlider(true)}
+          style={styles.helpButton}>
+          <Text style={styles.helpButtonText}>i</Text>
         </TouchableOpacity>
+        {/* "Need Help?" Button */}
+        {/* <TouchableOpacity onPress={handleNeedHelp}>
+          <Text style={styles.text}>Instructions</Text>
+        </TouchableOpacity> */}
 
         {/* InstructionPopup Component */}
-        <InstructionPopup
+        {/* <InstructionPopup
           isVisible={showPopup}
           onClose={() => setShowPopup(false)}
           content1="Join Session: Get the session code from the session creator and then enter the session."
           content2="Create Session: Enter your name and continue, select a price level (2 is like $20), select a radius, and then start the session."
           content3="Lobby: Once you join or start a session, you will enter the lobby. Share the Session code with your friends. The session creator can start the voting when everyone has joined."
           content4="Voting: Swipe right for restaurants that sound good and left for ones that don't!"
-        />
+        /> */}
         <View style={styles.container}>
           <View style={styles.container}>
             <NeonSign
@@ -591,6 +598,14 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
             </>
           )}
         </View>
+        {showInstructionSlider && (
+          <View style={styles.instructionSliderOverlay}>
+            <InstructionSlider
+              screen={view}
+              onClose={() => setShowInstructionSlider(false)}
+            />
+          </View>
+        )}
       </KeyboardAvoidingView>
     </Background>
   );
@@ -772,6 +787,34 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     margin: 20,
+  },
+  helpButton: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'white',
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  helpButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  instructionSliderOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    zIndex: 1000,
   },
 });
 
