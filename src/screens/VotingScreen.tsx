@@ -26,12 +26,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NeonButton from '../reusables/NeonButton';
 import InstructionSlider from '../reusables/InstructionSlider';
 import {useFocusEffect} from '@react-navigation/native';
-// import {useFocusEffect} from '@react-navigation/native';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
 }
-// const VOTING_TIMEOUT_MS = 120000; // 2min
 
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);
@@ -68,8 +66,7 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const {setResults} = useSession();
   const {username, setUsername} = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
-  // const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
-  const [shouldNavigate, setShouldNavigate] = useState(false); // New state
+  const [shouldNavigate, setShouldNavigate] = useState(false);
   const [, setSessionCodeInput] = useState('');
   const [showInstructionSlider, setShowInstructionSlider] = useState(false);
 
@@ -78,7 +75,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       if (nextAppState.match(/inactive|background/)) {
         console.log('App has gone to the background/inactive: ' + username);
         if (session && currentIndex < session.restaurants.length) {
-          // Only call updateUserVotingStatus if the user has not completed voting
           updateUserVotingStatus(session.code, username)
             .then(() => console.log('User voting status updated'))
             .catch(error => {
@@ -128,76 +124,26 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     }
   }, [navigation, session, username]);
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     // This function is called when the screen is focused
-  //     return () => {
-  //       // This function is called when the screen loses focus or is unmounting
-  //       console.log('VotingScreen is losing focus or unmounting: ' + username);
-  //       if (session && currentIndex < session.restaurants.length) {
-  //         updateUserVotingStatus(session.code, username)
-  //           .then(() => console.log('User voting status updated'))
-  //           .catch(error => {
-  //             const errorString = error.toString();
-  //             console.error('Error updating user voting status:', errorString);
-  //             logErrorToServerConsole(
-  //               `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
-  //             );
-  //           });
-  //       }
-  //     };
-  //   }, [session, username, currentIndex]),
-  // );
-
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     return () => {
-  //       console.log('VotingScreen is losing focus or unmounting ' + username);
-  //       if (session) {
-  //         const updateStatus = async () => {
-  //           try {
-  //             console.log(
-  //               `Attempting to update user voting status. Session Code: ${session.code}, User: ${username}`,
-  //             );
-  //             await updateUserVotingStatus(session.code, username);
-  //             console.log('User voting status updated');
-  //           } catch (error: any) {
-  //             const errorString = error.toString();
-  //             console.error('Error updating user voting status:', errorString);
-  //             logErrorToServerConsole(
-  //               `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
-  //             );
-  //           }
-  //         };
-
-  //         updateStatus();
-  //       }
-  //     };
-  //   }, [session, username]),
-  // );
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     setRemainingTime(time => {
-  //       if (time <= 1 && session) {
-  //         clearInterval(interval);
-  //         Alert.alert('Voting Ended', 'The voting session has ended.');
-  //         completeVoting(); // Call completeVoting when the time is up
-  //         return 0;
-  //       }
-  //       return time - 1;
-  //     });
-  //   }, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, [session, username, completeVoting]);
-
-  // Format remaining time
-  // const formatTime = (timeInSeconds: number) => {
-  //   const minutes = Math.floor(timeInSeconds / 60);
-  //   const seconds = timeInSeconds % 60;
-  //   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  // };
+  useFocusEffect(
+    useCallback(() => {
+      // This function is called when the screen is focused
+      return () => {
+        // This function is called when the screen loses focus or is unmounting
+        console.log('VotingScreen is losing focus or unmounting: ' + username);
+        if (session && currentIndex < session.restaurants.length) {
+          updateUserVotingStatus(session.code, username)
+            .then(() => console.log('User voting status updated'))
+            .catch(error => {
+              const errorString = error.toString();
+              console.error('Error updating user voting status:', errorString);
+              logErrorToServerConsole(
+                `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+              );
+            });
+        }
+      };
+    }, [session, username, currentIndex]),
+  );
 
   const onSwiped = useCallback(
     async (direction: 'left' | 'right', index: number) => {
