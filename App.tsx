@@ -61,12 +61,7 @@ const App: React.FC = () => {
   }
 
   if (showInstructions) {
-    return (
-      <InstructionSlider
-        allSlides={true}
-        onClose={() => setShowInstructions(false)}
-      />
-    );
+    return <InstructionSlider onClose={() => setShowInstructions(false)} />;
   }
 
   return (

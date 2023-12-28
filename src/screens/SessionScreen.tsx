@@ -171,6 +171,14 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
     }); // Add the user to the users array in UsersArrayContext
   };
 
+  if (showInstructionSlider) {
+    return (
+      <View style={styles.instructionSliderOverlay}>
+        <InstructionSlider onClose={() => setShowInstructionSlider(false)} />
+      </View>
+    );
+  }
+
   return (
     <Background>
       <KeyboardAvoidingView
@@ -561,14 +569,6 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
             </>
           )}
         </View>
-        {showInstructionSlider && (
-          <View style={styles.instructionSliderOverlay}>
-            <InstructionSlider
-              screen={view}
-              onClose={() => setShowInstructionSlider(false)}
-            />
-          </View>
-        )}
       </KeyboardAvoidingView>
     </Background>
   );

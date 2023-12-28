@@ -177,6 +177,14 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
     );
   }
 
+  if (showInstructionSlider) {
+    return (
+      <View style={styles.instructionSliderOverlay}>
+        <InstructionSlider onClose={() => setShowInstructionSlider(false)} />
+      </View>
+    );
+  }
+
   return (
     <Background>
       <View style={styles.container}>
@@ -333,14 +341,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
             fontWeight: 'bold',
           }}
         />
-        {showInstructionSlider && (
-          <View style={styles.instructionSliderOverlay}>
-            <InstructionSlider
-              screen="VoteLike"
-              onClose={() => setShowInstructionSlider(false)}
-            />
-          </View>
-        )}
       </View>
     </Background>
   );

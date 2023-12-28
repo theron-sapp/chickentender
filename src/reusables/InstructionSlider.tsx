@@ -16,7 +16,6 @@ const instructions = {
   default: require('../assets/images/FirstScreen.png'),
   join: require('../assets/images/JoinSessionScreen.png'),
   create: require('../assets/images/CreateSessionScreen.png'),
-  options: require('../assets/images/CreateSessionScreen.png'),
   Lobby: require('../assets/images/LobbyScreen.png'),
   VoteLike: require('../assets/images/VotingScreenLike.png'),
   VoteDislike: require('../assets/images/VotingScreenDislike.png'),
@@ -27,7 +26,6 @@ const instructionLabels: {[K in keyof typeof instructions]: string} = {
   default: 'Instructions for Session',
   join: 'Instructions for Joining a Session',
   create: 'Instructions for Creating a Session',
-  options: 'Instructions for Creating a Session',
   Lobby: 'Instructions for Lobby',
   VoteLike: 'Instructions for Voting - Like',
   VoteDislike: 'Instructions for Voting - Dislike',
@@ -37,16 +35,10 @@ const instructionLabels: {[K in keyof typeof instructions]: string} = {
 const {width, height} = Dimensions.get('window');
 
 type InstructionSliderProps = {
-  screen?: keyof typeof instructions;
-  allSlides?: boolean;
   onClose: () => void;
 };
 
-const InstructionSlider: React.FC<InstructionSliderProps> = ({
-  screen,
-  allSlides,
-  onClose,
-}) => {
+const InstructionSlider: React.FC<InstructionSliderProps> = ({onClose}) => {
   const handleDontShowAgain = async () => {
     try {
       await AsyncStorage.setItem('@ShowInstructions', 'false');
@@ -59,11 +51,14 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
   const scrollViewRef = useRef(null);
 
   // Determine the total number of slides
-  const totalSlides = allSlides ? Object.keys(instructions).length : 1;
+  const totalSlides = Object.keys(instructions).length;
 
   // Handle scroll event to update current slide
   const handleScroll = (event: {
-    nativeEvent: {layoutMeasurement: {width: any}; contentOffset: {x: number}};
+    nativeEvent: {
+      layoutMeasurement: {width: number};
+      contentOffset: {x: number};
+    };
   }) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
     const index = event.nativeEvent.contentOffset.x / slideSize;
@@ -80,70 +75,46 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
         onScroll={handleScroll}
         scrollEventThrottle={16}
         ref={scrollViewRef}>
-        {allSlides
-          ? // Render all slides
-            Object.entries(instructions).map(([key, source]) => (
-              <View
-                key={key}
-                style={{
-                  marginTop: 80,
-                  width: width,
-                  height: height - 240,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={styles.text}>
-                  {instructionLabels[key as keyof typeof instructions]}
-                </Text>
-
-                <Image
-                  source={source}
-                  style={{
-                    width: width,
-                    height: height - 240,
-                    resizeMode: 'contain',
-                    margin: 20,
-                  }}
-                />
-              </View>
-            ))
-          : screen && (
-              // Render only the specified slide
-              <View
-                style={{
-                  marginTop: 80,
-                  width: width,
-                  height: height - 240,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text style={styles.text}>{instructionLabels[screen]}</Text>
-
-                <Image
-                  source={instructions[screen]}
-                  style={{
-                    width: width,
-                    height: height - 240,
-                    resizeMode: 'contain',
-                    margin: 20,
-                  }}
-                />
-              </View>
-            )}
-      </ScrollView>
-      {allSlides && (
-        <View style={styles.pagination}>
-          {Array.from({length: totalSlides}).map((_, index) => (
+        {
+          // Render all slides
+          Object.entries(instructions).map(([key, source]) => (
             <View
-              key={index}
-              style={[
-                styles.dot,
-                currentSlide === index ? styles.activeDot : styles.inactiveDot,
-              ]}
-            />
-          ))}
-        </View>
-      )}
+              key={key}
+              style={{
+                marginTop: 80,
+                width: width,
+                height: height - 240,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Text style={styles.text}>
+                {instructionLabels[key as keyof typeof instructionLabels]}
+              </Text>
+
+              <Image
+                source={source}
+                style={{
+                  width: width,
+                  height: height - 240,
+                  resizeMode: 'contain',
+                  margin: 20,
+                }}
+              />
+            </View>
+          ))
+        }
+      </ScrollView>
+      <View style={styles.pagination}>
+        {Array.from({length: totalSlides}).map((_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.dot,
+              currentSlide === index ? styles.activeDot : styles.inactiveDot,
+            ]}
+          />
+        ))}
+      </View>
       <View style={styles.fixToText}>
         <Button title="Close" onPress={onClose} />
         <Button title="Don't Show Again" onPress={handleDontShowAgain} />
@@ -154,10 +125,14 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    position: 'absolute', // This ensures it overlays everything else
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
-    backgroundColor: 'black',
-    // marginTop: -20,
+    backgroundColor: 'black', // Or any other color for overlay background
+    zIndex: 1000, // High zIndex to ensure it's above everything else
   },
   pagination: {
     flexDirection: 'row',

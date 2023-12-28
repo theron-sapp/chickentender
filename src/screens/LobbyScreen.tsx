@@ -164,6 +164,14 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
     }
   };
 
+  if (showInstructionSlider) {
+    return (
+      <View style={styles.instructionSliderOverlay}>
+        <InstructionSlider onClose={() => setShowInstructionSlider(false)} />
+      </View>
+    );
+  }
+
   return (
     <Background>
       <TouchableOpacity
@@ -257,13 +265,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
             }}
           />
         )}
-        {/* <Button
-          title="LEAVE"
-          onPress={handleBackToSession}
-          containerStyle={styles.buttonContainer}
-          buttonStyle={styles.leaveButton}
-          titleStyle={styles.titleStyle}
-        /> */}
         <NeonButton
           title="ABANDON SESSION"
           onPress={handleBackToSession}
@@ -294,14 +295,6 @@ const LobbyScreen: React.FC<LobbyScreenProps> = ({navigation}) => {
             fontWeight: 'bold',
           }}
         />
-        {showInstructionSlider && (
-          <View style={styles.instructionSliderOverlay}>
-            <InstructionSlider
-              screen="Lobby"
-              onClose={() => setShowInstructionSlider(false)}
-            />
-          </View>
-        )}
       </View>
     </Background>
   );
@@ -402,6 +395,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
+    marginTop: 30,
   },
   helpButtonText: {
     color: 'white',
