@@ -112,6 +112,17 @@ export const getSession = async (sessionCode: string) => {
   return handleResponse(response);
 };
 
+export const logErrorToServerConsole = async (errorMessage: string) => {
+  const response = await fetch(`${BASE_URL}/sessions/log-message`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({message: errorMessage}),
+  });
+  return handleResponse(response);
+};
+
 export const voteOnRestaurant = async (sessionCode: string, data: VoteData) => {
   const response = await fetch(`${BASE_URL}/sessions/${sessionCode}/vote`, {
     method: 'POST',

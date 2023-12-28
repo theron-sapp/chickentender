@@ -15,17 +15,43 @@ interface ResultsScreenProps {
   navigation: ResultsScreenNavigationProp;
 }
 
+interface User {
+  username: string;
+  finishedVoting: boolean;
+}
+
+const shadowColors = [
+  '#c20404',
+  '#f08c0a',
+  '#e8e409',
+  '#36e809',
+  '#09e8d9',
+  '#253df5',
+  '#f125f5',
+  '#f5256e',
+];
+
+// Function to get a random color
+const getRandomColor = () => {
+  return shadowColors[Math.floor(Math.random() * shadowColors.length)];
+};
+
 const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
   const {session, setSession, setResults} = useSession();
   const {setUsername} = useUser();
   const confettiRef = useRef<any>(null);
   const [isFetching, setIsFetching] = useState(true);
   const [, setSessionCodeInput] = useState('');
+  const [unfinishedVoters, setUnfinishedVoters] = useState<User[]>([]);
 
   const fetchResults = useCallback(async () => {
     if (session?.code && isFetching) {
       const sessionUpdate = await getSession(session.code);
-
+      const usersNotFinished = sessionUpdate.users.filter(
+        (user: {finishedVoting: any}) => !user.finishedVoting,
+      );
+      setUnfinishedVoters(usersNotFinished as User[]);
+      setUnfinishedVoters(usersNotFinished);
       if (sessionUpdate?.votingCompleted) {
         try {
           const response = await getWinningRestaurant(session.code);
@@ -69,36 +95,60 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({navigation}) => {
             ref={confettiRef}
           />
         )}
-        {/* <Text style={styles.title}>Results</Text> */}
-        <NeonSign
-          text="RESULTS"
-          textStyle={{
-            color: '#ffffff',
-            fontSize: 68,
-            textAlign: 'center',
-            shadowColor: '#ff4aa3',
-            textShadowColor: '#ff4aa3',
-            textShadowOffset: {width: 0, height: 0},
-            textShadowRadius: 2,
-            shadowOpacity: 1,
-            shadowRadius: 30,
-            fontFamily: 'beon',
-            fontWeight: 'bold',
-          }}
-        />
         {hasResults ? (
-          <View style={styles.restaurantCard}>
-            <Image
-              source={{uri: session.results.winner.image}}
-              style={styles.image}
+          <>
+            <NeonSign
+              text="FEAST FOUND"
+              textStyle={{
+                color: '#ffffff',
+                fontSize: 58,
+                textAlign: 'center',
+                shadowColor: '#ff4aa3',
+                textShadowColor: '#ff4aa3',
+                textShadowOffset: {width: 0, height: 0},
+                textShadowRadius: 2,
+                shadowOpacity: 1,
+                shadowRadius: 30,
+                fontFamily: 'beon',
+                fontWeight: 'bold',
+              }}
             />
-            <Text style={styles.restaurantName}>
-              {session.results.winner.name}
-            </Text>
-            <Text style={styles.text}>{session.results.winner.address}</Text>
-          </View>
+            <View style={styles.restaurantCard}>
+              <Image
+                source={{uri: session.results.winner.image}}
+                style={styles.image}
+              />
+              <Text style={styles.restaurantName}>
+                {session.results.winner.name}
+              </Text>
+              <Text style={styles.text}>{session.results.winner.address}</Text>
+            </View>
+          </>
         ) : (
-          <Text style={styles.text}>Waiting for others to finish</Text>
+          // <Text style={styles.text}>Waiting for others to finish</Text>
+          <View style={styles.usersList}>
+            <Text style={styles.title2}>Tell these people to hurry up!</Text>
+            {unfinishedVoters.map((user, index) => (
+              <View key={index} style={styles.listItem}>
+                <NeonSign
+                  text={user.username.toUpperCase()}
+                  textStyle={{
+                    color: '#ffffff',
+                    fontSize: 28,
+                    textAlign: 'center',
+                    shadowColor: getRandomColor(), // Use the random color function
+                    textShadowColor: getRandomColor(),
+                    textShadowOffset: {width: 0, height: 0},
+                    textShadowRadius: 2,
+                    shadowOpacity: 1,
+                    shadowRadius: 10,
+                    fontFamily: 'beon',
+                    fontWeight: 'bold',
+                  }}
+                />
+              </View>
+            ))}
+          </View>
         )}
         {hasResults && (
           <Button title="Back to Homepage" onPress={handleBackToSession} />
@@ -124,6 +174,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     marginBottom: 20,
+  },
+  title2: {
+    fontSize: 22,
+    fontFamily: 'beon',
+    color: 'white',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    padding: 20,
+    textAlign: 'center',
   },
   restaurantCard: {
     width: '100%',
@@ -160,6 +219,14 @@ const styles = StyleSheet.create({
     shadowColor: 'black',
     shadowRadius: 4,
     shadowOpacity: 1,
+  },
+  usersList: {
+    width: '100%',
+    // Additional styles if needed
+  },
+  listItem: {
+    padding: 10,
+    alignItems: 'center',
   },
 });
 

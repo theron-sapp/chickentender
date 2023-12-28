@@ -8,12 +8,14 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  AppState,
 } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import {useSession} from '../contexts/SessionContext';
 import {useUser} from '../contexts/UserContext';
 import {
   leaveSession,
+  logErrorToServerConsole,
   updateUserVotingStatus,
   voteOnRestaurant,
 } from '../services/apiService';
@@ -23,11 +25,13 @@ import Background from '../reusables/Background';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NeonButton from '../reusables/NeonButton';
 import InstructionSlider from '../reusables/InstructionSlider';
+import {useFocusEffect} from '@react-navigation/native';
+// import {useFocusEffect} from '@react-navigation/native';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
 }
-const VOTING_TIMEOUT_MS = 120000; // 2min
+// const VOTING_TIMEOUT_MS = 120000; // 2min
 
 const renderStars = (rating: number) => {
   const fullStars = Math.floor(rating);
@@ -64,10 +68,41 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
   const {setResults} = useSession();
   const {username, setUsername} = useUser();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
+  // const [remainingTime, setRemainingTime] = useState(VOTING_TIMEOUT_MS / 1000); // In seconds
   const [shouldNavigate, setShouldNavigate] = useState(false); // New state
   const [, setSessionCodeInput] = useState('');
   const [showInstructionSlider, setShowInstructionSlider] = useState(false);
+
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: string) => {
+      if (nextAppState.match(/inactive|background/)) {
+        console.log('App has gone to the background/inactive: ' + username);
+        if (session && currentIndex < session.restaurants.length) {
+          // Only call updateUserVotingStatus if the user has not completed voting
+          updateUserVotingStatus(session.code, username)
+            .then(() => console.log('User voting status updated'))
+            .catch(error => {
+              const errorString = error.toString();
+              console.error('Error updating user voting status:', errorString);
+              logErrorToServerConsole(
+                `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+              );
+            });
+        }
+      }
+    };
+
+    // Subscribe
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    // Unsubscribe
+    return () => {
+      subscription.remove();
+    };
+  }, [session, username, currentIndex]);
 
   const completeVoting = useCallback(async () => {
     if (!session) {
@@ -79,38 +114,90 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       await updateUserVotingStatus(session.code, username);
       navigation.navigate('Results');
     } catch (error: any) {
+      const errorString = error.toString();
       if (error.message.includes('Session not found')) {
         setShouldNavigate(true);
       } else {
         Alert.alert('Error', 'Failed to complete voting. Please try again.');
-        console.error('Error completing voting:', error);
-        navigation.navigate('Session');
+        console.error('Error completing voting:', errorString);
+        logErrorToServerConsole(
+          `Error while completing voting in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+        );
+        setShouldNavigate(true);
       }
     }
   }, [navigation, session, username]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setRemainingTime(time => {
-        if (time <= 1 && session) {
-          clearInterval(interval);
-          Alert.alert('Voting Ended', 'The voting session has ended.');
-          completeVoting(); // Call completeVoting when the time is up
-          return 0;
-        }
-        return time - 1;
-      });
-    }, 1000);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     // This function is called when the screen is focused
+  //     return () => {
+  //       // This function is called when the screen loses focus or is unmounting
+  //       console.log('VotingScreen is losing focus or unmounting: ' + username);
+  //       if (session && currentIndex < session.restaurants.length) {
+  //         updateUserVotingStatus(session.code, username)
+  //           .then(() => console.log('User voting status updated'))
+  //           .catch(error => {
+  //             const errorString = error.toString();
+  //             console.error('Error updating user voting status:', errorString);
+  //             logErrorToServerConsole(
+  //               `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+  //             );
+  //           });
+  //       }
+  //     };
+  //   }, [session, username, currentIndex]),
+  // );
 
-    return () => clearInterval(interval);
-  }, [session, username, completeVoting]);
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     return () => {
+  //       console.log('VotingScreen is losing focus or unmounting ' + username);
+  //       if (session) {
+  //         const updateStatus = async () => {
+  //           try {
+  //             console.log(
+  //               `Attempting to update user voting status. Session Code: ${session.code}, User: ${username}`,
+  //             );
+  //             await updateUserVotingStatus(session.code, username);
+  //             console.log('User voting status updated');
+  //           } catch (error: any) {
+  //             const errorString = error.toString();
+  //             console.error('Error updating user voting status:', errorString);
+  //             logErrorToServerConsole(
+  //               `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+  //             );
+  //           }
+  //         };
+
+  //         updateStatus();
+  //       }
+  //     };
+  //   }, [session, username]),
+  // );
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setRemainingTime(time => {
+  //       if (time <= 1 && session) {
+  //         clearInterval(interval);
+  //         Alert.alert('Voting Ended', 'The voting session has ended.');
+  //         completeVoting(); // Call completeVoting when the time is up
+  //         return 0;
+  //       }
+  //       return time - 1;
+  //     });
+  //   }, 1000);
+
+  //   return () => clearInterval(interval);
+  // }, [session, username, completeVoting]);
 
   // Format remaining time
-  const formatTime = (timeInSeconds: number) => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
+  // const formatTime = (timeInSeconds: number) => {
+  //   const minutes = Math.floor(timeInSeconds / 60);
+  //   const seconds = timeInSeconds % 60;
+  //   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  // };
 
   const onSwiped = useCallback(
     async (direction: 'left' | 'right', index: number) => {
@@ -129,9 +216,13 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
             vote: 'like',
             code: session.code,
           });
-        } catch (error) {
+        } catch (error: any) {
+          const errorString = error.toString();
           console.error('Failed to send vote:', error);
           Alert.alert('Vote Error', 'Unable to send your vote.');
+          logErrorToServerConsole(
+            `Error while swiping voting in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
+          );
         }
       }
       setCurrentIndex(index + 1);
@@ -305,9 +396,9 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
             },
           }}
         />
-        <Text style={styles.timer}>
+        {/* <Text style={styles.timer}>
           Time remaining: {formatTime(remainingTime)}
-        </Text>
+        </Text> */}
       </View>
       <View style={styles.buttonContainer}>
         <NeonButton
