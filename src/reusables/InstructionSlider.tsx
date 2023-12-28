@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState, useRef} from 'react';
 import {
   ScrollView,
@@ -9,32 +10,31 @@ import {
   Dimensions,
   StyleSheet,
 } from 'react-native';
-// import Swiper from 'react-native-swiper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const instructions = {
   default: require('../assets/images/FirstScreen.png'),
   join: require('../assets/images/JoinSessionScreen.png'),
   create: require('../assets/images/CreateSessionScreen.png'),
+  options: require('../assets/images/CreateSessionScreen.png'),
   Lobby: require('../assets/images/LobbyScreen.png'),
   VoteLike: require('../assets/images/VotingScreenLike.png'),
   VoteDislike: require('../assets/images/VotingScreenDislike.png'),
   Results: require('../assets/images/ResultsScreen.png'),
-  // Add other screens
 };
 
 const instructionLabels: {[K in keyof typeof instructions]: string} = {
   default: 'Instructions for Session',
   join: 'Instructions for Joining a Session',
   create: 'Instructions for Creating a Session',
+  options: 'Instructions for Creating a Session',
   Lobby: 'Instructions for Lobby',
   VoteLike: 'Instructions for Voting - Like',
   VoteDislike: 'Instructions for Voting - Dislike',
   Results: 'Instructions for Results',
-  // Add other custom labels
 };
 
-const {width, height} = Dimensions.get('window'); // Get the width of the device screen
+const {width, height} = Dimensions.get('window');
 
 type InstructionSliderProps = {
   screen?: keyof typeof instructions;
@@ -88,7 +88,7 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
                 style={{
                   marginTop: 80,
                   width: width,
-                  height: height - 200,
+                  height: height - 240,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -100,7 +100,7 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
                   source={source}
                   style={{
                     width: width,
-                    height: height - 200,
+                    height: height - 240,
                     resizeMode: 'contain',
                     margin: 20,
                   }}
@@ -113,7 +113,7 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
                 style={{
                   marginTop: 80,
                   width: width,
-                  height: height - 200,
+                  height: height - 240,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
@@ -123,7 +123,7 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
                   source={instructions[screen]}
                   style={{
                     width: width,
-                    height: height - 200,
+                    height: height - 240,
                     resizeMode: 'contain',
                     margin: 20,
                   }}
@@ -131,18 +131,19 @@ const InstructionSlider: React.FC<InstructionSliderProps> = ({
               </View>
             )}
       </ScrollView>
-      {/* Render pagination dots */}
-      <View style={styles.pagination}>
-        {Array.from({length: totalSlides}).map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              currentSlide === index ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
-        ))}
-      </View>
+      {allSlides && (
+        <View style={styles.pagination}>
+          {Array.from({length: totalSlides}).map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.dot,
+                currentSlide === index ? styles.activeDot : styles.inactiveDot,
+              ]}
+            />
+          ))}
+        </View>
+      )}
       <View style={styles.fixToText}>
         <Button title="Close" onPress={onClose} />
         <Button title="Don't Show Again" onPress={handleDontShowAgain} />
@@ -156,26 +157,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: 'black',
-    marginTop: -20,
+    // marginTop: -20,
   },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     height: 20,
-    marginBottom: -20,
+    // marginBottom: -20,
   },
   dot: {
     height: 10,
     width: 10,
     borderRadius: 5,
     marginHorizontal: 4,
+    marginBottom: 40,
   },
   activeDot: {
-    backgroundColor: 'white', // Active dot color
+    backgroundColor: 'white',
   },
   inactiveDot: {
-    backgroundColor: 'gray', // Inactive dot color
+    backgroundColor: 'gray',
   },
   text: {
     color: 'white',
@@ -187,6 +189,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginLeft: 20,
     marginRight: 20,
+    marginBottom: 20,
   },
   separator: {
     marginVertical: 8,

@@ -186,7 +186,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
           <Text style={styles.helpButtonText}>i</Text>
         </TouchableOpacity>
         <Swiper
-          // verticalSwipe={false}
           cards={session.restaurants}
           renderCard={card => (
             <View style={styles.card}>
@@ -224,8 +223,8 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 0, // Increase margin for better coverage
-                  marginLeft: 0, // Increase margin to reach the edge
+                  marginTop: 0,
+                  marginLeft: 0,
                   width: '100%',
                 },
               },
@@ -246,8 +245,8 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 0, // Increase margin for better coverage
-                  marginLeft: 0, // Increase margin to reach the edge
+                  marginTop: 0,
+                  marginLeft: 0,
                   width: '100%',
                 },
               },
@@ -268,8 +267,8 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 0, // Increase margin for better coverage
-                  marginLeft: 0, // Increase margin to reach the edge
+                  marginTop: 0,
+                  marginLeft: 0,
                   width: '100%',
                 },
               },
@@ -290,8 +289,8 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
                   flexDirection: 'column',
                   alignItems: 'flex-end',
                   justifyContent: 'flex-start',
-                  marginTop: 0, // Increase margin for better coverage
-                  marginLeft: 0, // Increase margin to reach the edge
+                  marginTop: 0,
+                  marginLeft: 0,
                   width: '100%',
                 },
               },
@@ -350,7 +349,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'space-between',
   },
   starContainer: {
     flexDirection: 'row',
@@ -359,10 +357,10 @@ const styles = StyleSheet.create({
     // padding: 10,
   },
   titleStyle: {
-    fontFamily: 'rubikBold', // your custom font
+    fontFamily: 'rubikBold',
     fontSize: 24,
     color: 'white',
-    textShadowColor: 'black', // choose a darker shade for depth
+    textShadowColor: 'black',
     textShadowOffset: {width: 0, height: 1},
     textShadowRadius: 1,
     padding: 5,
@@ -379,7 +377,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'flex-end', // Aligns children (button) to the end of the container
-    padding: 20, // Add padding for spacing from screen edges
+    padding: 20,
   },
 
   timer: {

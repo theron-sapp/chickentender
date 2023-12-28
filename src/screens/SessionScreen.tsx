@@ -176,27 +176,12 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
       <KeyboardAvoidingView
         style={{flex: 1}}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={50} // You can adjust this value as needed
-      >
+        keyboardVerticalOffset={50}>
         <TouchableOpacity
           onPress={() => setShowInstructionSlider(true)}
           style={styles.helpButton}>
           <Text style={styles.helpButtonText}>i</Text>
         </TouchableOpacity>
-        {/* "Need Help?" Button */}
-        {/* <TouchableOpacity onPress={handleNeedHelp}>
-          <Text style={styles.text}>Instructions</Text>
-        </TouchableOpacity> */}
-
-        {/* InstructionPopup Component */}
-        {/* <InstructionPopup
-          isVisible={showPopup}
-          onClose={() => setShowPopup(false)}
-          content1="Join Session: Get the session code from the session creator and then enter the session."
-          content2="Create Session: Enter your name and continue, select a price level (2 is like $20), select a radius, and then start the session."
-          content3="Lobby: Once you join or start a session, you will enter the lobby. Share the Session code with your friends. The session creator can start the voting when everyone has joined."
-          content4="Voting: Swipe right for restaurants that sound good and left for ones that don't!"
-        /> */}
         <View style={styles.container}>
           <View style={styles.container}>
             <NeonSign
@@ -240,13 +225,6 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
           </View>
           {view === 'default' && (
             <>
-              {/* <View style={styles.imageContainer}>
-              <Image
-                source={require('../assets/images/Diner-Icon-NoBackground.png')}
-                style={styles.imagelogo}
-                resizeMode="contain"
-              />
-            </View> */}
               <NeonButton
                 title="JOIN A SESSION"
                 onPress={() => setView('join')}
@@ -423,7 +401,6 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
                   ) {
                     setView('options');
                   } else {
-                    // Modify the alert message to be more specific
                     Alert.alert(
                       'Invalid Username',
                       'Username must consist of letters only and cannot be empty. 20 Characters max.',
@@ -519,20 +496,6 @@ const SessionScreen: React.FC<SessionScreenProps> = ({navigation}) => {
               <Text style={styles.radiusLabel}>
                 Search Radius: {radius.toFixed(0)} miles
               </Text>
-
-              {/* <Button
-                title="Use Current Location"
-                onPress={requestAndUseLocation}
-                buttonStyle={styles.useLocationButton}
-                containerStyle={styles.buttonContainer}
-                titleStyle={styles.titleStyle}
-                ViewComponent={LinearGradient}
-                linearGradientProps={{
-                  colors: ['#835501', '#3b0101'],
-                  start: {x: 1, y: 0},
-                  end: {x: 0, y: 0},
-                }}
-              /> */}
               <NeonButton
                 title="START SESSION"
                 onPress={requestAndUseLocation}
@@ -674,8 +637,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(125, 124, 124, 1)',
     borderRadius: 5,
-    backgroundColor: 'rgba(125, 124, 124, 0.88)', // Semi-transparent white
-    // Adding a subtle shadow for depth
+    backgroundColor: 'rgba(125, 124, 124, 0.88)',
     shadowColor: 'black',
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.6,
