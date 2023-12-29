@@ -25,7 +25,6 @@ import Background from '../reusables/Background';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import NeonButton from '../reusables/NeonButton';
 import InstructionSlider from '../reusables/InstructionSlider';
-import {useFocusEffect} from '@react-navigation/native';
 
 interface VotingScreenProps {
   navigation: VotingScreenNavigationProp;
@@ -123,27 +122,6 @@ const VotingScreen: React.FC<VotingScreenProps> = ({navigation}) => {
       }
     }
   }, [navigation, session, username]);
-
-  useFocusEffect(
-    useCallback(() => {
-      // This function is called when the screen is focused
-      return () => {
-        // This function is called when the screen loses focus or is unmounting
-        console.log('VotingScreen is losing focus or unmounting: ' + username);
-        if (session && currentIndex < session.restaurants.length) {
-          updateUserVotingStatus(session.code, username)
-            .then(() => console.log('User voting status updated'))
-            .catch(error => {
-              const errorString = error.toString();
-              console.error('Error updating user voting status:', errorString);
-              logErrorToServerConsole(
-                `Error on voting screen in session: ${session.code}\nUser: ${username}\nError: ${errorString}`,
-              );
-            });
-        }
-      };
-    }, [session, username, currentIndex]),
-  );
 
   const onSwiped = useCallback(
     async (direction: 'left' | 'right', index: number) => {
